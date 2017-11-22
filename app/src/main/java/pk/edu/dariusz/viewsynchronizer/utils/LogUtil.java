@@ -14,4 +14,5 @@ public class LogUtil {
     public static void  logInfoToConsole(String logMsg){
         Log.i("VSLOG.INFO",logMsg);
     }
+    public static void  logErrorToConsole(String logMsg,Throwable tr) { Log.e("VSLOG.ERR",logMsg,tr);}
 }

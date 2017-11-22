@@ -96,4 +96,16 @@ public class Utils {
                 catch(Exception e){}
         }
     }
+
+    public static boolean checkIfClientIsConnected(Socket socket) {
+        try {
+            socket.getOutputStream().write(0);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+        /* if(!socket.getInetAddress().isReachable(200)) {
+                return false;
+            }*/
+    }
 }

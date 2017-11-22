@@ -19,15 +19,16 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class ClientViewSynchronizerService extends Service {
     // Binder given to clients
-    private String data = "Server haven't sent any data yet.";
+    private String data = "Waiting...";
     boolean areNewData = true;
     private final IBinder mBinder = new LocalBinder();
     private String address;
     private int port;
     private ClientDataSynchronizer clientDataSynchronizer;
+
     public class LocalBinder extends Binder {
         public ClientViewSynchronizerService getService() {
-            // Return this instance of LocalService so clients can call public methods
+            // Return instance of Service to enable  clients  call public methods
             return ClientViewSynchronizerService.this;
         }
     }
@@ -35,9 +36,6 @@ public class ClientViewSynchronizerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        address="192.168.1.105";
-        port=6000;
-        new NewDataOnSocketCheckerThread().start();
     }
 
     @Nullable
@@ -50,6 +48,14 @@ public class ClientViewSynchronizerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //to enable for user choose address of server and port to connection(connection additional settings)
+        /*
+        address = intent.getStringExtra("serverAddress");
+        port = intent.getIntExtra("serverPort",6000);
+        */
+        address="192.168.1.105";
+        port=6000;
+        if(clientDataSynchronizer==null) new NewDataOnSocketCheckerThread().start();
         return START_NOT_STICKY;
     }
 

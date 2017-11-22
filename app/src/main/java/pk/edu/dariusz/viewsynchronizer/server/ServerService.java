@@ -36,6 +36,7 @@ public class ServerService extends Service {
         }
     }
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
+
     @Override
     public void onCreate() {
         super.onCreate();

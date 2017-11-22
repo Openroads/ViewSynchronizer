@@ -19,26 +19,13 @@ public class JoinerActivity extends AppCompatActivity {
     private boolean mBound = false;
     private  Intent checkerServiceIntent;
     private TextView textView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joiner);
         textView= (TextView)findViewById(R.id.displayContent);
         checkerServiceIntent = new Intent(this, ClientViewSynchronizerService.class);
-
-
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
-
-
     }
 
     @Override
@@ -51,8 +38,12 @@ public class JoinerActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStop() {
+        super.onStop();
+        if(mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
