@@ -4,9 +4,11 @@ import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -21,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
@@ -101,9 +104,31 @@ public class ServerImpl implements ServerViewSynchronizer {
                     String clientAddress =Arrays.toString(socket.getInetAddress().getAddress());
                     LogUtil.logInfoToConsole("Servect has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
                     listenersSocket.add(socket);
-                    if(!knownListeners.contains(clientAddress)){
-                        new SendReplyWithDataToSocketsThread(socket,dataToSend).start();
-                        knownListeners.add(clientAddress);
+                    REQUEST_TYPE operation = null;
+                    try{
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        operation = REQUEST_TYPE.valueOf(reader.readLine());
+                        switch (operation){
+                            case FIRST:
+                                sendResponseToSocket(socket);
+                                knownListeners.add(clientAddress);
+                                break;
+                            case GET_NEXT:
+                  /*              if(!knownListeners.contains(clientAddress) ) {
+                                    sendResponseToSocket(socket);
+                                    knownListeners.add(clientAddress);
+                                }*/
+                                break;
+                            case REFRESH:
+                                sendResponseToSocket(socket);
+                                break;
+                            case FINISH:
+                                knownListeners.remove(clientAddress);
+                                break;
+                        }
+
+                    }catch(IOException clientStreamException){
+                            LogUtil.logErrorToConsole("Exception in listener loop server.",clientStreamException);
                     }
 
                 }
@@ -113,10 +138,9 @@ public class ServerImpl implements ServerViewSynchronizer {
             }
         }
     }
-
-
-
-
+    private void sendResponseToSocket(Socket socket){
+        new SendReplyWithDataToSocketsThread(socket,dataToSend).start();
+    }
     public String getIpAddress() {
         String ip = "";
         try {
@@ -143,107 +167,6 @@ public class ServerImpl implements ServerViewSynchronizer {
             ip += "Something Wrong! " + e.toString() + "\n";
         }
         return ip;
-    }
-
-/*
-    private class SendMessageToAllListenersThread extends Thread {
-
-        private List<Socket> hostSockets;
-
-
-        SendMessageToAllListenersThread(List<Socket> sockets) {
-            this.hostSockets = sockets;
-        }
-
-        @Override
-        public void run() {
-            for (Socket socket : hostSockets) {
-                try {
-                    sendMessageToSocket(socket, message);
-
-                    if(!Utils.checkIfClientIsConnected(socket)){
-                        socket.close();
-                        hostSockets.remove(socket);
-                    }
-                } catch (IOException e) {
-                    LogUtil.logErrorToConsole("Exception during sending  message to all connected hosts.",e);
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-
-
-    private class SendReplyWithCurrentMessageThread extends Thread {
-
-        private Socket hostThreadSocket;
-
-        SendReplyWithCurrentMessageThread(Socket socket) {
-            hostThreadSocket = socket;
-        }
-
-        @Override
-        public void run() {
-            try {
-                sendMessageToSocket(hostThreadSocket, message);
-            } catch (IOException e) {
-                LogUtil.logErrorToConsole("Exception during sending message to new connected client.",e);
-                e.printStackTrace();
-            }
-        }
-
-
-    }
-         private void sendMessageToSocket(Socket socket, String message) throws IOException {
-        String msgReply = "Hello from Server, we have " + listenersSocket.size() + " listeners."
-                + "Message from leader is: " + message;
-        OutputStream outputStream = null;
-        LogUtil.logDebugToConsole("listenersocketsize: "+listenersSocket.size());
-        try {
-            outputStream = socket.getOutputStream();
-            PrintStream printStream = new PrintStream(outputStream);
-            printStream.print(msgReply);
-            printStream.close();
-            PrintWriter out = new PrintWriter(outputStream,true);
-            out.println(msgReply);
-
-            } finally {
-            if (outputStream != null)
-                try {
-                    outputStream.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-        }
-        }
-
-        */
-
-
-    private class SendReplyWithFileToSocketsThread extends  Thread{
-
-        private List<Socket> hostSockets;
-        private InputStream fileInputStream;
-        SendReplyWithFileToSocketsThread(List<Socket> listenersSocket, InputStream fileIS, DATA_TYPE type) {
-            this.hostSockets = listenersSocket;
-            this.fileInputStream = fileIS;
-        }
-
-        @Override
-        public void run() {
-            for(Socket hostSocket:hostSockets) {
-                try(OutputStream outputStream = hostSocket.getOutputStream();
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
-//                    IOUtils.copy(fileInputStream,outputStream);
-                   Utils.copyBetweenStreams(fileInputStream,outputStream);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
     }
 }
 

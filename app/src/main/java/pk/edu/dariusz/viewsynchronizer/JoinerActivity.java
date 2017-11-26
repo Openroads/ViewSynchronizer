@@ -18,6 +18,8 @@ import java.io.File;
 
 import pk.edu.dariusz.viewsynchronizer.client.ClientViewSynchronizerService;
 import pk.edu.dariusz.viewsynchronizer.client.LeaderDataObject;
+import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
+import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
 
 public class JoinerActivity extends AppCompatActivity {
     private ClientViewSynchronizerService mService;
@@ -66,39 +68,52 @@ public class JoinerActivity extends AppCompatActivity {
             textView.setText(mService.getCurrentData().getMessage());
             new Thread() {
                 public void run() {
-                    while (true) {
-                        final LeaderDataObject newData = mService.checkForNewData();
-                        if (newData != null) {
-                            switch (newData.getType()) {
-                                case STRING_MSG:
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            textView.setText(newData.getMessage());
-                                        }
-                                    });
-                                    break;
-                                case IMG:
-                                    runOnUiThread(new Runnable() {
+                    try {
+                        while (true) {
+                            final LeaderDataObject newData;
 
-                                        @Override
-                                        public void run() {
-                                            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                                            Bitmap bitmap = BitmapFactory.decodeFile(newData.getFile().getAbsolutePath(),bmOptions);
-                                            //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
-                                            imageView.setImageBitmap(bitmap);
+                            newData = mService.checkForNewData();
+
+                            if (newData != null) {
+                                switch (newData.getType()) {
+                                    case STRING_MSG:
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                textView.setText(newData.getMessage());
+                                            }
+                                        });
+                                        break;
+                                    case IMG:
+                                        runOnUiThread(new Runnable() {
+
+                                            @Override
+                                            public void run() {
+                                                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                                Bitmap bitmap = BitmapFactory.decodeFile(newData.getFile().getAbsolutePath(), bmOptions);
+                                                //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
+                                                imageView.setImageBitmap(bitmap);
 
 //                                            imageView.setImageURI(Uri.fromFile(newData.getFile()));
 
-                                            if (newData.getMessage() != null)
-                                                textView.setText(newData.getMessage());
+                                                if (newData.getMessage() != null)
+                                                    textView.setText(newData.getMessage());
 
-                                            imageView.invalidate();
-                                        }
-                                    });
-                                    break;
+                                                imageView.invalidate();
+                                            }
+                                        });
+                                        break;
+                                }
                             }
                         }
+                    }catch (ServerDisconnected serverDisconnected){
+                        LogUtil.logInfoToConsole("Leader has switched off the server.");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                finish();
+                            }
+                        });
                     }
                 }
             }.start();

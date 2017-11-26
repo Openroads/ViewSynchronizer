@@ -87,8 +87,7 @@ public class SendReplyWithDataToSocketsThread extends Thread {
                 IOUtils.copy(data.getFileInputStream(), bos);
                 socketOutputStream.flush();
                 data.getFileInputStream().close();
-                socketOutputStream.close();
-                socketOutputStream.close();
+                socket.close();
                 LogUtil.logInfoToConsole("Flushed binary data");
         }
 

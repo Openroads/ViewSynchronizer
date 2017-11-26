@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer.server;
+package pk.edu.dariusz.viewsynchronizer.commons;
 
 /**
  * Created by dariusz on 11/25/17.

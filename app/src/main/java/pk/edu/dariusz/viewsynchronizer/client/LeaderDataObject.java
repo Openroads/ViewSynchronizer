@@ -2,7 +2,7 @@ package pk.edu.dariusz.viewsynchronizer.client;
 
 import java.io.File;
 
-import pk.edu.dariusz.viewsynchronizer.server.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 
 /**
  * Created by dariusz on 11/25/17.
@@ -13,6 +13,7 @@ public class LeaderDataObject {
 
     private String message;
     private File file;
+    private long fileSizeCheckSum;
 
     public LeaderDataObject(String message) {
     this.message=message;
@@ -44,5 +45,18 @@ public class LeaderDataObject {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public long getFileSizeCheckSum() {
+        return fileSizeCheckSum;
+    }
+
+    public void setFileSizeCheckSum(long fileSizeCheckSum) {
+        this.fileSizeCheckSum = fileSizeCheckSum;
+    }
+    public boolean isDataFileCorrect(){
+        if(file ==null)
+            return true;
+        return file.length()==this.fileSizeCheckSum;
     }
 }

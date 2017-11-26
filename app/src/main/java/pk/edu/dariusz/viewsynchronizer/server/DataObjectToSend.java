@@ -2,6 +2,8 @@ package pk.edu.dariusz.viewsynchronizer.server;
 
 import java.io.InputStream;
 
+import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
+
 /**
  * Created by dariusz on 11/25/17.
  */

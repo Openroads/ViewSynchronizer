@@ -11,9 +11,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 
-import pk.edu.dariusz.viewsynchronizer.server.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
@@ -23,11 +27,11 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class ClientDataSynchronizer {
     private Socket serverSocket;
-    private String response="";
+    private SocketAddress socketAddress;
     private BufferedReader in;
 
     public ClientDataSynchronizer(String address, int port) throws IOException {
-        serverSocket = new Socket(address,port);
+        socketAddress = new InetSocketAddress(address,port);
 /*        in = new BufferedReader(new InputStreamReader(
                 serverSocket.getInputStream()));*/
     }
@@ -36,12 +40,20 @@ public class ClientDataSynchronizer {
     }
 
     //TODO to implement for any kind of data
-    public LeaderDataObject fetchDataFromServer() throws IOException {
+    public LeaderDataObject fetchDataFromServer(REQUEST_TYPE request_type) throws IOException {
+
+        //making reconnection to server
+        reconnect();
+
         InputStream inputStream = serverSocket.getInputStream();
+        PrintWriter writer = new PrintWriter(serverSocket.getOutputStream());
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        LeaderDataObject leaderDataObject = new LeaderDataObject();
+        writer.println(request_type.name());
+        writer.flush();
 
+
+        LeaderDataObject leaderDataObject = new LeaderDataObject();
         String[] headers = reader.readLine().split(";");
         String message = reader.readLine();
         /*String datatype = "DataType=";
@@ -60,6 +72,7 @@ public class ClientDataSynchronizer {
             case OTHER:
             case PDF:
             case IMG:
+                leaderDataObject.setFileSizeCheckSum(Long.parseLong(headers[1]));
                 File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/rec.jpg");
                 try (FileOutputStream out = new FileOutputStream(outFile)) {
                     //int bytes = IOUtils.copy(inputStream,out);
@@ -78,12 +91,15 @@ public class ClientDataSynchronizer {
                     IOUtils.copy(inputStream,out);
                     inputStream.close();
                     serverSocket.close();
+                    serverSocket=null;
                     leaderDataObject.setFile(outFile);
                 }
                     break;
             }
         return leaderDataObject;
     }
+
+
     public File fetchFileFromServer() throws IOException {
         InputStream in = serverSocket.getInputStream();
         File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()+"/rec.jpg");
@@ -104,4 +120,8 @@ public class ClientDataSynchronizer {
         return false;
     }
 
+    private void reconnect() throws IOException {
+        this.serverSocket = new Socket();
+        this.serverSocket.connect(socketAddress);
+    }
 }

@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 
-import pk.edu.dariusz.viewsynchronizer.server.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 import pk.edu.dariusz.viewsynchronizer.server.DataObjectToSend;
 import pk.edu.dariusz.viewsynchronizer.server.ServerService;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;

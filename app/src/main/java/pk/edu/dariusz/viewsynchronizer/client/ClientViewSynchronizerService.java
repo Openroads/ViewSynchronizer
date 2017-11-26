@@ -10,7 +10,9 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
+import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
 
 /**
  * Created by dariusz on 11/15/17.
@@ -20,7 +22,7 @@ public class ClientViewSynchronizerService extends Service {
     // Binder given to clients
     private LeaderDataObject data = new LeaderDataObject("Waiting...");
     private File file;
-    boolean areNewData = false;
+    int areNewData = 0;
     private final IBinder mBinder = new LocalBinder();
     private String address;
     private int port;
@@ -58,6 +60,7 @@ public class ClientViewSynchronizerService extends Service {
         address="192.168.1.106";
         port=6000;
         if(clientDataSynchronizer==null) new NewDataOnSocketCheckerThread().start();
+
         return START_NOT_STICKY;
     }
 
@@ -72,12 +75,14 @@ public class ClientViewSynchronizerService extends Service {
         super.onDestroy();
     }
 
-    public LeaderDataObject checkForNewData(){
-        if(areNewData) {
-            areNewData=false;
+    public LeaderDataObject checkForNewData() throws ServerDisconnected {
+        if(areNewData==0)
+            return null;
+        else if(areNewData==1) {
+            areNewData=0;
             return data;
         }else {
-            return null;
+            throw new ServerDisconnected("Leader has  switched off the server");
         }
 
     }
@@ -96,15 +101,19 @@ public class ClientViewSynchronizerService extends Service {
                 /*String findAddress = Utils.checkHostsInLANForServerIp();
                 if(!findAddress.equals(""))
                     address= findAddress;*/
-
-               while(true) {
-                    clientDataSynchronizer = new ClientDataSynchronizer(address,port);
-                    data = clientDataSynchronizer.fetchDataFromServer();
+                clientDataSynchronizer = new ClientDataSynchronizer(address,port);
+                REQUEST_TYPE type = REQUEST_TYPE.FIRST;
+                while(true) {
+                   // clientDataSynchronizer.connect();
+                    data = clientDataSynchronizer.fetchDataFromServer(type);
+                    areNewData = 1;
                     LogUtil.logInfoToConsole("Are new data :)");
-                    areNewData = true;
-
+//                    type = data.isDataFileCorrect() ? REQUEST_TYPE.GET_NEXT:REQUEST_TYPE.REFRESH;
+                    type=REQUEST_TYPE.GET_NEXT;
+                    LogUtil.logInfoToConsole("Checksum: " + data.isDataFileCorrect());
                 }
             } catch (IOException e) {
+                areNewData=3;
                 e.printStackTrace();
             }
         }
@@ -120,7 +129,7 @@ public class ClientViewSynchronizerService extends Service {
                 clientDataSynchronizer = new ClientDataSynchronizer(address,port);
 
                     file = clientDataSynchronizer.fetchFileFromServer();
-                    areNewData = true;
+                    areNewData = 1;
 
 
             } catch (IOException e) {
