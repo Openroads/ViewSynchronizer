@@ -17,7 +17,7 @@ import pk.edu.dariusz.viewsynchronizer.utils.ViewSynchronizerConstants;
  */
 
 public class ServerService extends Service {
-    public static final int MSG_SHARE_TO_ALL = 1;
+    public static final int SEND_NEW_DATA_TO_LISTENERS = 1;
     private ServerViewSynchronizer viewSynchronizerServer;
     private static final int serverSocketPort = ViewSynchronizerConstants.APPLICATION_PORT;
 
@@ -26,15 +26,16 @@ public class ServerService extends Service {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_SHARE_TO_ALL:
-                    String message = (String)msg.obj;
+                case SEND_NEW_DATA_TO_LISTENERS:
+                    DataObjectToSend message = (DataObjectToSend) msg.obj;
                     viewSynchronizerServer.updateMessageForListeners(message);
                     break;
-                default:
+             default:
                     super.handleMessage(msg);
             }
         }
     }
+
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
 
     @Override

@@ -1,9 +1,10 @@
 package pk.edu.dariusz.viewsynchronizer.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
@@ -107,5 +108,14 @@ public class Utils {
         /* if(!socket.getInetAddress().isReachable(200)) {
                 return false;
             }*/
+    }
+
+    public static void copyBetweenStreams(InputStream in, OutputStream out) throws IOException {
+        byte[] buf = new byte[8192];
+        int len = 0;
+        while ((len = in.read(buf)) != -1) {
+            out.write(buf, 0, len);
+        }
+        LogUtil.logDebugToConsole("Read: "+buf.length + "bytes");
     }
 }

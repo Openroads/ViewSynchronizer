@@ -19,5 +19,16 @@
         android:layout_height="wrap_content"
         android:text="Unsubscribe"
         android:onClick="unsubscribeOnClick"/>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pobierz plik"
+        android:onClick="fetchFileFromServerOnClick"/>
+    <ImageView
+        android:id="@+id/imageFromServer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </LinearLayout>
 </android.support.constraint.ConstraintLayout>

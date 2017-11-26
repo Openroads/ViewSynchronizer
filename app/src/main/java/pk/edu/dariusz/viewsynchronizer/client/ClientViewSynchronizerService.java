@@ -7,11 +7,10 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
 
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
-import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 /**
  * Created by dariusz on 11/15/17.
@@ -19,12 +18,15 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class ClientViewSynchronizerService extends Service {
     // Binder given to clients
-    private String data = "Waiting...";
-    boolean areNewData = true;
+    private LeaderDataObject data = new LeaderDataObject("Waiting...");
+    private File file;
+    boolean areNewData = false;
     private final IBinder mBinder = new LocalBinder();
     private String address;
     private int port;
     private ClientDataSynchronizer clientDataSynchronizer;
+
+
 
     public class LocalBinder extends Binder {
         public ClientViewSynchronizerService getService() {
@@ -53,7 +55,7 @@ public class ClientViewSynchronizerService extends Service {
         address = intent.getStringExtra("serverAddress");
         port = intent.getIntExtra("serverPort",6000);
         */
-        address="192.168.1.105";
+        address="192.168.1.106";
         port=6000;
         if(clientDataSynchronizer==null) new NewDataOnSocketCheckerThread().start();
         return START_NOT_STICKY;
@@ -70,7 +72,7 @@ public class ClientViewSynchronizerService extends Service {
         super.onDestroy();
     }
 
-    public String checkForNewData(){
+    public LeaderDataObject checkForNewData(){
         if(areNewData) {
             areNewData=false;
             return data;
@@ -79,8 +81,12 @@ public class ClientViewSynchronizerService extends Service {
         }
 
     }
-    public String getCurrentData(){
+    public LeaderDataObject getCurrentData(){
         return  data;
+    }
+    public File fetchFileFromServer() {
+        new FetchFileFromServerThread().start();
+        return file;
     }
     private class NewDataOnSocketCheckerThread extends Thread{
 
@@ -90,12 +96,33 @@ public class ClientViewSynchronizerService extends Service {
                 /*String findAddress = Utils.checkHostsInLANForServerIp();
                 if(!findAddress.equals(""))
                     address= findAddress;*/
-                clientDataSynchronizer = new ClientDataSynchronizer(address,port);
-                while(true) {
+
+               while(true) {
+                    clientDataSynchronizer = new ClientDataSynchronizer(address,port);
                     data = clientDataSynchronizer.fetchDataFromServer();
+                    LogUtil.logInfoToConsole("Are new data :)");
                     areNewData = true;
 
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private class FetchFileFromServerThread extends Thread{
+
+        @Override
+        public void run() {
+            try {
+                /*String findAddress = Utils.checkHostsInLANForServerIp();
+                if(!findAddress.equals(""))
+                    address= findAddress;*/
+                clientDataSynchronizer = new ClientDataSynchronizer(address,port);
+
+                    file = clientDataSynchronizer.fetchFileFromServer();
+                    areNewData = true;
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

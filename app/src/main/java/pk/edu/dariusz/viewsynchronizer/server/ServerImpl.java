@@ -1,22 +1,25 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
-import android.net.Network;
 import android.util.Log;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.utils.Utils;
@@ -27,9 +30,12 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class ServerImpl implements ServerViewSynchronizer {
     private ServerSocket serverSocketListener;
-    private String message = "Default data from leader :)";
+    private DataObjectToSend dataToSend = new DataObjectToSend("Default data from leader :)");
     private int serverPort;
     private List<Socket> listenersSocket;
+    //identifier set to recognise first connecting hosts
+    private Set<String> knownListeners=new HashSet<>();
+
 
     public ServerImpl(int serverPort) {
         this.serverPort = serverPort;
@@ -47,15 +53,27 @@ public class ServerImpl implements ServerViewSynchronizer {
         return serverSocketListener;
     }
 
-    public void updateMessageForListeners(String message) {
-        LogUtil.logInfoToConsole("Updating message from: "+this.message+" to: " +message);
-        this.message = message;
+    public void updateMessageForListeners(DataObjectToSend message) {
+        LogUtil.logInfoToConsole("Updating message from: "+this.dataToSend.getMessage()+" to: " +message);
+        if(dataToSend.getFileInputStream()!=null)IOUtils.closeQuietly(this.dataToSend.getFileInputStream());//TODO BE CAREFUL
+        this.dataToSend = message;
         if(listenersSocket != null && listenersSocket.size() > 0) {
-            new SendReplyWithMessageToSocketsThread(listenersSocket,message).run();
+            new SendReplyWithDataToSocketsThread(listenersSocket,message).run();
         }else{
             LogUtil.logInfoToConsole("No listeners connected to server.");
         }
     }
+
+   /* @Override
+    public void sendFileForListeners(InputStream file, DATA_TYPE type) {
+        LogUtil.logInfoToConsole("Sending file to listeners. Path: ");
+        if(listenersSocket != null && listenersSocket.size() > 0) {
+            new SendReplyWithFileToSocketsThread(listenersSocket,file,type).run();
+        }else{
+            LogUtil.logInfoToConsole("No listeners connected to server.");
+        }
+    }*/
+
     public void closeServer() {
         LogUtil.logDebugToConsole("Closing server - closeServer()");
         if (serverSocketListener != null) {
@@ -75,14 +93,19 @@ public class ServerImpl implements ServerViewSynchronizer {
         public void run() {
             try {
                 serverSocketListener = new ServerSocket(serverPort);
-                listenersSocket = new ArrayList<>();
+                listenersSocket = new LinkedList<>();
                 while (true) {
                     // block until new connection is created
                     LogUtil.logDebugToConsole("ServerIsListening now on");
                     Socket socket = serverSocketListener.accept();
-                    LogUtil.logInfoToConsole("Servect has just connected  wtih " + Arrays.toString(socket.getInetAddress().getAddress()));
+                    String clientAddress =Arrays.toString(socket.getInetAddress().getAddress());
+                    LogUtil.logInfoToConsole("Servect has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
                     listenersSocket.add(socket);
-                    new SendReplyWithMessageToSocketsThread(socket,message).start();
+                    if(!knownListeners.contains(clientAddress)){
+                        new SendReplyWithDataToSocketsThread(socket,dataToSend).start();
+                        knownListeners.add(clientAddress);
+                    }
+
                 }
             } catch (IOException e) {
                 LogUtil.logErrorToConsole("Exception in server accepting connection.",e);
@@ -91,28 +114,6 @@ public class ServerImpl implements ServerViewSynchronizer {
         }
     }
 
-     private void sendMessageToSocket(Socket socket, String message) throws IOException {
-        String msgReply = "Hello from Server, we have " + listenersSocket.size() + " listeners."
-                + "Message from leader is: " + message;
-        OutputStream outputStream = null;
-        LogUtil.logDebugToConsole("listenersocketsize: "+listenersSocket.size());
-        try {
-            outputStream = socket.getOutputStream();
-           /* PrintStream printStream = new PrintStream(outputStream);
-            printStream.print(msgReply);
-            printStream.close();*/
-            PrintWriter out = new PrintWriter(outputStream,true);
-            out.println(msgReply);
-
-        } finally {
-           /* if (outputStream != null)
-                try {
-                    outputStream.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }*/
-        }
-    }
 
 
 
@@ -144,6 +145,7 @@ public class ServerImpl implements ServerViewSynchronizer {
         return ip;
     }
 
+/*
     private class SendMessageToAllListenersThread extends Thread {
 
         private List<Socket> hostSockets;
@@ -193,7 +195,55 @@ public class ServerImpl implements ServerViewSynchronizer {
 
 
     }
+         private void sendMessageToSocket(Socket socket, String message) throws IOException {
+        String msgReply = "Hello from Server, we have " + listenersSocket.size() + " listeners."
+                + "Message from leader is: " + message;
+        OutputStream outputStream = null;
+        LogUtil.logDebugToConsole("listenersocketsize: "+listenersSocket.size());
+        try {
+            outputStream = socket.getOutputStream();
+            PrintStream printStream = new PrintStream(outputStream);
+            printStream.print(msgReply);
+            printStream.close();
+            PrintWriter out = new PrintWriter(outputStream,true);
+            out.println(msgReply);
+
+            } finally {
+            if (outputStream != null)
+                try {
+                    outputStream.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+        }
+        }
+
+        */
 
 
+    private class SendReplyWithFileToSocketsThread extends  Thread{
+
+        private List<Socket> hostSockets;
+        private InputStream fileInputStream;
+        SendReplyWithFileToSocketsThread(List<Socket> listenersSocket, InputStream fileIS, DATA_TYPE type) {
+            this.hostSockets = listenersSocket;
+            this.fileInputStream = fileIS;
+        }
+
+        @Override
+        public void run() {
+            for(Socket hostSocket:hostSockets) {
+                try(OutputStream outputStream = hostSocket.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+//                    IOUtils.copy(fileInputStream,outputStream);
+                   Utils.copyBetweenStreams(fileInputStream,outputStream);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
 }
 

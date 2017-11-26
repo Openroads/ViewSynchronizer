@@ -1,15 +1,11 @@
 package pk.edu.dariusz.viewsynchronizer;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import java.net.SocketException;
-
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
-import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 

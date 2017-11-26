@@ -12,7 +12,8 @@ public interface ServerViewSynchronizer {
     void closeServer();
     int getPort();
     String getIpAddress();
-    void
 
-    updateMessageForListeners(String message);
+
+    void updateMessageForListeners(DataObjectToSend message);
+
 }
