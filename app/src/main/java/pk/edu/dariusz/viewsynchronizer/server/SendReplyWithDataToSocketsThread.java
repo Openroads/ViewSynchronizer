@@ -4,6 +4,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -63,18 +64,24 @@ public class SendReplyWithDataToSocketsThread extends Thread {
         LogUtil.logDebugToConsole("Response is to : " + hostSockets.size() + " listeners");
 
         //String header = "DataType=" + data.getType().ordinal()+";Length="+data.getFileInputStream().available();
-        String header = String.valueOf(data.getType().ordinal()).trim();
-        header=data.getType().name();
-        if(data.getFileInputStream()!=null)header+=";"+data.getLength();
+        String dataType = data.getType().name();
+        //if(data.getFileInputStream()!=null)header+=";"+data.getLength();
         OutputStream socketOutputStream = socket.getOutputStream();
-        BufferedWriter writerToSocket = new BufferedWriter(new OutputStreamWriter(socketOutputStream));
+        DataOutputStream dataOutputStream = new DataOutputStream(socketOutputStream);
+
+        /*BufferedWriter writerToSocket = new BufferedWriter(new OutputStreamWriter(socketOutputStream));
 
 
         writerToSocket.write(header);
         writerToSocket.newLine();
         writerToSocket.write(data.getMessage());
         writerToSocket.newLine();
-        writerToSocket.flush();
+        writerToSocket.flush();*/
+        dataOutputStream.writeUTF(dataType);
+        long length = data.getFileInputStream() !=null ?  data.getLength() : 0;
+        dataOutputStream.writeLong(length);
+        dataOutputStream.writeUTF(data.getMessage());
+       // dataOutputStream.flush();
 
         switch (data.getType()) {
             case STRING_MSG:
@@ -82,11 +89,11 @@ public class SendReplyWithDataToSocketsThread extends Thread {
             case IMG:
             case PDF:
             case OTHER:
-                LogUtil.logInfoToConsole("Sending binary fie to listener. header: " + header);
+                LogUtil.logInfoToConsole("Sending binary fie to listener. header: " + dataType);
                 BufferedOutputStream bos = new BufferedOutputStream(socketOutputStream);
                 IOUtils.copy(data.getFileInputStream(), bos);
                 socketOutputStream.flush();
-                data.getFileInputStream().close();
+                bos.close();
                 socket.close();
                 LogUtil.logInfoToConsole("Flushed binary data");
         }

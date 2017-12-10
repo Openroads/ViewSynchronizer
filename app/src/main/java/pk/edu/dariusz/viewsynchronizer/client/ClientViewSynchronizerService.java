@@ -57,7 +57,7 @@ public class ClientViewSynchronizerService extends Service {
         address = intent.getStringExtra("serverAddress");
         port = intent.getIntExtra("serverPort",6000);
         */
-        address="192.168.1.106";
+        address="192.168.1.107";
         port=6000;
         if(clientDataSynchronizer==null) new NewDataOnSocketCheckerThread().start();
 
@@ -114,6 +114,7 @@ public class ClientViewSynchronizerService extends Service {
                 }
             } catch (IOException e) {
                 areNewData=3;
+                LogUtil.logErrorToConsole("Synchronizer loop",e);
                 e.printStackTrace();
             }
         }

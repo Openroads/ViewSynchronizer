@@ -5,6 +5,8 @@ import android.os.Environment;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,16 +48,18 @@ public class ClientDataSynchronizer {
         reconnect();
 
         InputStream inputStream = serverSocket.getInputStream();
-        PrintWriter writer = new PrintWriter(serverSocket.getOutputStream());
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        //PrintWriter writer = new PrintWriter(serverSocket.getOutputStream());
+        //InputStreamReader reader = new InputStreamReader(inputStream);
+        DataOutputStream dataOutputStream = new DataOutputStream(serverSocket.getOutputStream());
+        dataOutputStream.writeUTF(request_type.name());
+        dataOutputStream.flush();
 
-        writer.println(request_type.name());
-        writer.flush();
-
+        DataInputStream dataInputStream = new DataInputStream(inputStream);
 
         LeaderDataObject leaderDataObject = new LeaderDataObject();
-        String[] headers = reader.readLine().split(";");
-        String message = reader.readLine();
+        String headers = dataInputStream.readUTF();//.split(";");
+        long size = dataInputStream.readLong();
+        String message = dataInputStream.readUTF();
         /*String datatype = "DataType=";
         int lastIndexOf = headers[0].indexOf(datatype) + datatype.length();
         datatype = headers[0].substring(lastIndexOf, lastIndexOf + 1);
@@ -63,16 +67,16 @@ public class ClientDataSynchronizer {
         lastIndexOf = headers[0].indexOf(length) + datatype.length();
         length = headers[0].substring(lastIndexOf, lastIndexOf + 1);*/
         //DATA_TYPE type = DATA_TYPE.values()[Integer.parseInt(headers[0])];
-        DATA_TYPE type = DATA_TYPE.valueOf(headers[0]);
+        DATA_TYPE type = DATA_TYPE.valueOf(headers);
         leaderDataObject.setType(type);
         leaderDataObject.setMessage(message);
+        leaderDataObject.setFileSizeCheckSum(size);
         switch (type) {
             case STRING_MSG:
                 break;
             case OTHER:
             case PDF:
             case IMG:
-                leaderDataObject.setFileSizeCheckSum(Long.parseLong(headers[1]));
                 File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/rec.jpg");
                 try (FileOutputStream out = new FileOutputStream(outFile)) {
                     //int bytes = IOUtils.copy(inputStream,out);

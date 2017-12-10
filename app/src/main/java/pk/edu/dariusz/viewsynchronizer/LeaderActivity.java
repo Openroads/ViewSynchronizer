@@ -70,6 +70,8 @@ public class LeaderActivity extends AppCompatActivity {
             dataObjectToSend.setType(DATA_TYPE.IMG);
             dataObjectToSend.setLength(getSizeFromUri(uri));
 
+        }else{
+            dataObjectToSend.setLength(0);
         }
         Message msg = Message.obtain(null, ServerService.SEND_NEW_DATA_TO_LISTENERS, 0, 0);
         msg.obj=dataObjectToSend;

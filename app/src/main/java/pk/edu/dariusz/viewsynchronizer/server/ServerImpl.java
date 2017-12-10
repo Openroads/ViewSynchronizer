@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -57,7 +58,7 @@ public class ServerImpl implements ServerViewSynchronizer {
     }
 
     public void updateMessageForListeners(DataObjectToSend message) {
-        LogUtil.logInfoToConsole("Updating message from: "+this.dataToSend.getMessage()+" to: " +message);
+        LogUtil.logInfoToConsole("Updating message from: "+this.dataToSend.getMessage()+" to: " +message.getMessage());
         if(dataToSend.getFileInputStream()!=null)IOUtils.closeQuietly(this.dataToSend.getFileInputStream());//TODO BE CAREFUL
         this.dataToSend = message;
         if(listenersSocket != null && listenersSocket.size() > 0) {
@@ -106,8 +107,9 @@ public class ServerImpl implements ServerViewSynchronizer {
                     listenersSocket.add(socket);
                     REQUEST_TYPE operation = null;
                     try{
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        operation = REQUEST_TYPE.valueOf(reader.readLine());
+                       // BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                        operation = REQUEST_TYPE.valueOf(dataInputStream.readUTF());
                         switch (operation){
                             case FIRST:
                                 sendResponseToSocket(socket);
