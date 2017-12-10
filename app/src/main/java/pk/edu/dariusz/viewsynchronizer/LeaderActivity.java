@@ -74,24 +74,29 @@ public class LeaderActivity extends AppCompatActivity {
         }
         // Create and send a message to the service, using a supported 'what' value
         DataObjectToSend dataObjectToSend = new DataObjectToSend(editTextShareMessage.getText().toString());
+        new SendDataThread(dataObjectToSend).start();
 
-        if(uri!=null) {
-            dataObjectToSend.setFileUri(uri);
+    }
+    private class SendDataThread extends Thread{
+        DataObjectToSend dataObjectToSend;
 
-            dataObjectToSend.setFile(makeFileFromUri(uri));
-
-            getInfoAboutFile(uri,dataObjectToSend);
-
-        }else{
-            dataObjectToSend.setLength(0);
+        SendDataThread(DataObjectToSend dataObjectToSend){
+            this.dataObjectToSend=dataObjectToSend;
         }
-        Message msg = Message.obtain(null, ServerService.SEND_NEW_DATA_TO_LISTENERS, 0, 0);
-        msg.obj=dataObjectToSend;
-        try {
-            mServiceMessenger.send(msg);
-        } catch (RemoteException e) {
-            LogUtil.logErrorToConsole("Problem with sending message to server service",e);
-            Toast.makeText(this,"Can't send message",Toast.LENGTH_SHORT).show();
+        @Override
+        public void run() {
+            dataObjectToSend.setFileUri(uri);
+            if(uri!=null) {
+                dataObjectToSend.setFile(makeFileFromUri(uri));
+                getInfoAboutFile(uri, dataObjectToSend);
+            }
+            Message msg = Message.obtain(null, ServerService.SEND_NEW_DATA_TO_LISTENERS, 0, 0);
+            msg.obj=dataObjectToSend;
+            try {
+                mServiceMessenger.send(msg);
+            } catch (RemoteException e) {
+                LogUtil.logErrorToConsole("Problem with sending message to server service",e);
+            }
         }
     }
     @Override
