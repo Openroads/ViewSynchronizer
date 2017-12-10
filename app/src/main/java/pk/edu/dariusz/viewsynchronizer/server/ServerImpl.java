@@ -59,7 +59,6 @@ public class ServerImpl implements ServerViewSynchronizer {
 
     public void updateMessageForListeners(DataObjectToSend message) {
         LogUtil.logInfoToConsole("Updating message from: "+this.dataToSend.getMessage()+" to: " +message.getMessage());
-        if(dataToSend.getFileInputStream()!=null)IOUtils.closeQuietly(this.dataToSend.getFileInputStream());//TODO BE CAREFUL
         this.dataToSend = message;
         if(listenersSocket != null && listenersSocket.size() > 0) {
             new SendReplyWithDataToSocketsThread(listenersSocket,message).run();
@@ -104,12 +103,13 @@ public class ServerImpl implements ServerViewSynchronizer {
                     Socket socket = serverSocketListener.accept();
                     String clientAddress =Arrays.toString(socket.getInetAddress().getAddress());
                     LogUtil.logInfoToConsole("Servect has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
-                    listenersSocket.add(socket);
+
                     REQUEST_TYPE operation = null;
                     try{
                        // BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                         operation = REQUEST_TYPE.valueOf(dataInputStream.readUTF());
+                        LogUtil.logInfoToConsole("Request type: " +operation);
                         switch (operation){
                             case FIRST:
                                 sendResponseToSocket(socket);
@@ -120,6 +120,7 @@ public class ServerImpl implements ServerViewSynchronizer {
                                     sendResponseToSocket(socket);
                                     knownListeners.add(clientAddress);
                                 }*/
+                                listenersSocket.add(socket);
                                 break;
                             case REFRESH:
                                 sendResponseToSocket(socket);
@@ -142,6 +143,7 @@ public class ServerImpl implements ServerViewSynchronizer {
     }
     private void sendResponseToSocket(Socket socket){
         new SendReplyWithDataToSocketsThread(socket,dataToSend).start();
+//        listenersSocket.remove(socket);
     }
     public String getIpAddress() {
         String ip = "";

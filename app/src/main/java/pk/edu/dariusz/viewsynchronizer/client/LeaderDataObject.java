@@ -3,6 +3,7 @@ package pk.edu.dariusz.viewsynchronizer.client;
 import java.io.File;
 
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 
 /**
  * Created by dariusz on 11/25/17.
@@ -57,6 +58,9 @@ public class LeaderDataObject {
     public boolean isDataFileCorrect(){
         if(file ==null)
             return true;
-        return file.length()==this.fileSizeCheckSum;
-    }
+        else {
+            LogUtil.logDebugToConsole("F.length: " +file.length()+ "checksumfromserver:" +fileSizeCheckSum);
+            return file.length() == this.fileSizeCheckSum;
+        }
+        }
 }

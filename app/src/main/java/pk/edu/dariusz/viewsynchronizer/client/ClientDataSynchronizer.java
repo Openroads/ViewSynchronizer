@@ -77,6 +77,8 @@ public class ClientDataSynchronizer {
             case OTHER:
             case PDF:
             case IMG:
+                String fileName = dataInputStream.readUTF();
+                LogUtil.logDebugToConsole("FILE NAME: " +fileName);
                 File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/rec.jpg");
                 try (FileOutputStream out = new FileOutputStream(outFile)) {
                     //int bytes = IOUtils.copy(inputStream,out);

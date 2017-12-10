@@ -1,14 +1,18 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
+import android.content.Context;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +36,7 @@ public class SendReplyWithDataToSocketsThread extends Thread {
 
 
     public SendReplyWithDataToSocketsThread(Socket socket, DataObjectToSend m) {
-        this.hostSockets =new LinkedList<>(Collections.singletonList(socket));
+        this.hostSockets =new LinkedList<>(Arrays.asList(socket));
         this.data = m;
     }
 
@@ -40,18 +44,18 @@ public class SendReplyWithDataToSocketsThread extends Thread {
     @Override
     public void run() {
         List<Socket> disconnectedClients =null;
+        LogUtil.logDebugToConsole("Response is to : " + hostSockets.size() + " listeners");
         for (Socket socket : hostSockets) {
             try {
                 sendMessageToSocket(socket, data);
-
+                socket.close();
                /* if (!Utils.checkIfClientIsConnected(socket)) {
                     if(disconnectedClients == null) disconnectedClients = new ArrayList<>(1);
                     socket.close();
                     disconnectedClients.add(socket);
                 }*/
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LogUtil.logErrorToConsole("Exception during sending  message to all connected hosts.", e);
-                e.printStackTrace();
             }
         }
         hostSockets.clear();
@@ -59,26 +63,14 @@ public class SendReplyWithDataToSocketsThread extends Thread {
     }
 
     private void sendMessageToSocket(Socket socket, DataObjectToSend data) throws IOException {
-        String msgReply = "Hello from Server, we have " + hostSockets.size() + " listeners."
-                + "Message from leader is: " + data.getMessage();
-        LogUtil.logDebugToConsole("Response is to : " + hostSockets.size() + " listeners");
-
         //String header = "DataType=" + data.getType().ordinal()+";Length="+data.getFileInputStream().available();
         String dataType = data.getType().name();
         //if(data.getFileInputStream()!=null)header+=";"+data.getLength();
         OutputStream socketOutputStream = socket.getOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream(socketOutputStream);
 
-        /*BufferedWriter writerToSocket = new BufferedWriter(new OutputStreamWriter(socketOutputStream));
-
-
-        writerToSocket.write(header);
-        writerToSocket.newLine();
-        writerToSocket.write(data.getMessage());
-        writerToSocket.newLine();
-        writerToSocket.flush();*/
         dataOutputStream.writeUTF(dataType);
-        long length = data.getFileInputStream() !=null ?  data.getLength() : 0;
+        long length = data.getFile() !=null ?  data.getLength() : 0;
         dataOutputStream.writeLong(length);
         dataOutputStream.writeUTF(data.getMessage());
        // dataOutputStream.flush();
@@ -89,13 +81,16 @@ public class SendReplyWithDataToSocketsThread extends Thread {
             case IMG:
             case PDF:
             case OTHER:
-                LogUtil.logInfoToConsole("Sending binary fie to listener. header: " + dataType);
-                BufferedOutputStream bos = new BufferedOutputStream(socketOutputStream);
-                IOUtils.copy(data.getFileInputStream(), bos);
-                socketOutputStream.flush();
-                bos.close();
-                socket.close();
+                dataOutputStream.writeUTF(data.getFileName());
+                LogUtil.logInfoToConsole("Sending binary filee to listener. Size: " + data.getFile().length());
+               try( BufferedOutputStream bos = new BufferedOutputStream(socketOutputStream);
+                    FileInputStream fis = new FileInputStream(data.getFile())) {
+                   IOUtils.copy(fis, bos);
+//                   socketOutputStream.flush();
+//                   bos.close();
+               }
                 LogUtil.logInfoToConsole("Flushed binary data");
+                break;
         }
 
 

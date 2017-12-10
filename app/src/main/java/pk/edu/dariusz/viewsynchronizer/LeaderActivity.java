@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -19,7 +22,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 import pk.edu.dariusz.viewsynchronizer.server.DataObjectToSend;
@@ -31,6 +40,7 @@ public class LeaderActivity extends AppCompatActivity {
     private EditText editTextShareMessage;
     private ImageView imageView;
     private Uri uri;
+    private File sharedFile;
     private Messenger mServiceMessenger;
     private Intent serviceIntent;
     private boolean mBounded;
@@ -66,9 +76,11 @@ public class LeaderActivity extends AppCompatActivity {
         DataObjectToSend dataObjectToSend = new DataObjectToSend(editTextShareMessage.getText().toString());
 
         if(uri!=null) {
-            dataObjectToSend.setFileInputStream(getContentResolver().openInputStream(uri));
-            dataObjectToSend.setType(DATA_TYPE.IMG);
-            dataObjectToSend.setLength(getSizeFromUri(uri));
+            dataObjectToSend.setFileUri(uri);
+
+            dataObjectToSend.setFile(makeFileFromUri(uri));
+
+            getInfoAboutFile(uri,dataObjectToSend);
 
         }else{
             dataObjectToSend.setLength(0);
@@ -152,17 +164,32 @@ public class LeaderActivity extends AppCompatActivity {
                 }else{
                     LogUtil.logDebugToConsole("Selected file uri is null.");
                 }
-
                 imageView.setImageURI(uri);
             }
         }
     }
-    private long getSizeFromUri(Uri uri){
+    private void getInfoAboutFile(Uri uri,DataObjectToSend dots){
         Cursor cursor = this.getContentResolver().query(uri,null, null, null, null);
         cursor.moveToFirst();
-        long size = cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE));
+        dots.setLength(cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE)));
+        dots.setFileName(cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)));
+        if(dots.getFileName().endsWith("jpg") || dots.getFileName().endsWith("png")) dots.setType(DATA_TYPE.IMG);
+        else if(dots.getFileName().endsWith("pdf")) {
+            dots.setType(DATA_TYPE.PDF);
+        } else dots.setType(DATA_TYPE.OTHER);
         cursor.close();
-        return size;
+
+    }
+    private File makeFileFromUri(Uri uri) {
+        File copy = new File(getFilesDir(),"shareDataCopy");
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(copy)) {
+            IOUtils.copy(getContentResolver().openInputStream(uri),fileOutputStream);
+        } catch (IOException e) {
+            LogUtil.logErrorToConsole("Exception during making copy from uri ",e);
+        }
+
+        return copy;
     }
 
 }

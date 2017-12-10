@@ -1,5 +1,8 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
+import android.net.Uri;
+
+import java.io.File;
 import java.io.InputStream;
 
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
@@ -11,7 +14,9 @@ import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 public class DataObjectToSend {
     private DATA_TYPE type;
     private String message;
-    private InputStream fileInputStream;
+    private Uri fileUri;
+    private File file;
+    private String fileName;
     private long length;
 
     public DataObjectToSend(String message) {
@@ -31,16 +36,25 @@ public class DataObjectToSend {
         return message;
     }
 
+    public Uri getFileUri() {
+        return fileUri;
+    }
+
+    public void setFileUri(Uri fileUri) {
+        this.fileUri = fileUri;
+    }
+
     public void setMessage(String message) {
         this.message = message;
     }
 
-    public InputStream getFileInputStream() {
-        return fileInputStream;
+
+    public File getFile() {
+        return file;
     }
 
-    public void setFileInputStream(InputStream fileInputStream) {
-        this.fileInputStream = fileInputStream;
+    public void setFile(File file) {
+        this.file = file;
     }
 
     public long getLength() {
@@ -49,5 +63,14 @@ public class DataObjectToSend {
 
     public void setLength(long length) {
         this.length = length;
+    }
+
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
