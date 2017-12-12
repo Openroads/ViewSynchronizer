@@ -21,11 +21,12 @@
         android:onClick="unsubscribeOnClick"/>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/openFileFromLeaderButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pobierz plik"
-        android:onClick="fetchFileFromServerOnClick"/>
+        android:text="Otwórz"
+        android:visibility="invisible"
+        android:onClick="openFileFromServerOnClick"/>
     <ImageView
         android:id="@+id/imageFromServer"
         android:layout_width="wrap_content"

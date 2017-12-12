@@ -2,6 +2,7 @@ package pk.edu.dariusz.viewsynchronizer.client;
 
 import android.os.Environment;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
@@ -79,7 +80,8 @@ public class ClientDataSynchronizer {
             case IMG:
                 String fileName = dataInputStream.readUTF();
                 LogUtil.logDebugToConsole("FILE NAME: " +fileName);
-                File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/rec.jpg");
+                String extension = FilenameUtils.getExtension(fileName);
+                File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()+File.separator + "temp."+extension);
                 try (FileOutputStream out = new FileOutputStream(outFile)) {
                     //int bytes = IOUtils.copy(inputStream,out);
                     /*long lenght = Long.parseLong(headers[1]);

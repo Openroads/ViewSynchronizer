@@ -11,8 +11,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 
@@ -27,13 +31,15 @@ public class JoinerActivity extends AppCompatActivity {
     private  Intent checkerServiceIntent;
     private TextView textView;
     private ImageView imageView;
-    private File fileFromServer;
+    private Button dataLeaderOpener;
+    private LeaderDataObject leaderDataObject;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joiner);
         textView= (TextView)findViewById(R.id.displayContent);
         imageView= (ImageView) findViewById(R.id.imageFromServer);
+        dataLeaderOpener = (Button) findViewById(R.id.openFileFromLeaderButton);
         checkerServiceIntent = new Intent(this, ClientViewSynchronizerService.class);
     }
 
@@ -75,6 +81,7 @@ public class JoinerActivity extends AppCompatActivity {
                             newData = mService.checkForNewData();
 
                             if (newData != null) {
+                                leaderDataObject = newData;
                                 switch (newData.getType()) {
                                     case STRING_MSG:
                                         runOnUiThread(new Runnable() {
@@ -100,9 +107,17 @@ public class JoinerActivity extends AppCompatActivity {
                                                     textView.setText(newData.getMessage());
 
                                                 imageView.invalidate();
+
                                             }
                                         });
-                                        break;
+                                    case PDF:
+                                    case OTHER:
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                dataLeaderOpener.setVisibility(View.VISIBLE);
+                                            }
+                                        });
                                 }
                             }
                         }
@@ -132,8 +147,12 @@ public class JoinerActivity extends AppCompatActivity {
         finish();
     }
 
-    public void fetchFileFromServerOnClick(View view) {
-        new Thread() {
+    public void openFileFromServerOnClick(View view) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(leaderDataObject.getFile().getName()));
+        intent.setDataAndType(Uri.fromFile(leaderDataObject.getFile()), mime);
+        startActivity(intent);
+        /*new Thread() {
             public void run() {
 
                     fileFromServer = mService.fetchFileFromServer();
@@ -151,6 +170,6 @@ public class JoinerActivity extends AppCompatActivity {
                     }
 
             }
-        }.start();
+        }.start();*/
     }
 }

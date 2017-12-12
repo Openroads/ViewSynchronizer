@@ -2,6 +2,7 @@ package pk.edu.dariusz.viewsynchronizer;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -18,11 +19,13 @@ import android.os.RemoteException;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -148,7 +151,7 @@ public class LeaderActivity extends AppCompatActivity {
         // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
         // To search for all documents available via installed storage providers,
         // it would be "*/*".
-        intent.setType("image/jpeg");
+        intent.setType("*/*");
 
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
@@ -169,16 +172,25 @@ public class LeaderActivity extends AppCompatActivity {
                 }else{
                     LogUtil.logDebugToConsole("Selected file uri is null.");
                 }
+                String type = resultData.getType();
+                if(type !=null)
                 imageView.setImageURI(uri);
             }
         }
     }
     private void getInfoAboutFile(Uri uri,DataObjectToSend dots){
-        Cursor cursor = this.getContentResolver().query(uri,null, null, null, null);
+        ContentResolver contentResolver = this.getContentResolver();
+        Cursor cursor = contentResolver.query(uri,null, null, null, null);
         cursor.moveToFirst();
         dots.setLength(cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE)));
         dots.setFileName(cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)));
-        if(dots.getFileName().endsWith("jpg") || dots.getFileName().endsWith("png")) dots.setType(DATA_TYPE.IMG);
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getExtensionFromMimeType(contentResolver.getType(uri));
+
+        String extension = FilenameUtils.getExtension( dots.getFileName());
+        if(extension.equals("")) dots.setFileName(dots.getFileName()+"."+type);
+        if(type ==null) type=extension;
+        if(type.endsWith("jpg") || type.endsWith("png")) dots.setType(DATA_TYPE.IMG);
         else if(dots.getFileName().endsWith("pdf")) {
             dots.setType(DATA_TYPE.PDF);
         } else dots.setType(DATA_TYPE.OTHER);
