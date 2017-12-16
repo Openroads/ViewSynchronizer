@@ -11,6 +11,8 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 
+import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
+
 /**
  * Created by dariusz on 11/18/17.
  */
@@ -117,5 +119,20 @@ public class Utils {
             out.write(buf, 0, len);
         }
         LogUtil.logDebugToConsole("Read: "+buf.length + "bytes");
+    }
+
+    public static DATA_TYPE getDataType(String fileName){
+        DATA_TYPE data_type;
+
+        if(fileName.toLowerCase().endsWith("jpg") || fileName.toLowerCase().endsWith("png")){
+            data_type= DATA_TYPE.IMG;
+        }
+        else if(fileName.endsWith("pdf")) {
+            data_type = DATA_TYPE.PDF;
+        } else {
+            data_type = DATA_TYPE.OTHER;
+        }
+
+        return  data_type;
     }
 }

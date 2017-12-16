@@ -8,23 +8,20 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -36,17 +33,22 @@ import java.io.IOException;
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 import pk.edu.dariusz.viewsynchronizer.server.DataObjectToSend;
 import pk.edu.dariusz.viewsynchronizer.server.ServerService;
+import pk.edu.dariusz.viewsynchronizer.server.UriInfo;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
+import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class LeaderActivity extends AppCompatActivity {
 
+    private static final int MAX_IMAGE_DIMENSION = 512;
     private EditText editTextShareMessage;
+    private EditText labelFileName;
     private ImageView imageView;
     private Uri uri;
-    private File sharedFile;
+    private UriInfo uriInfo;
     private Messenger mServiceMessenger;
     private Intent serviceIntent;
     private boolean mBounded;
+
 
 
     private static final int READ_REQUEST_CODE = 42;
@@ -58,6 +60,7 @@ public class LeaderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_leader);
         editTextShareMessage = (EditText) findViewById(R.id.editTextToSend);
         imageView = (ImageView) findViewById(R.id.imageToSend);
+        labelFileName = (EditText) findViewById(R.id.sharedFileName);
         serviceIntent = new Intent(this, ServerService.class);
         startService(serviceIntent);
 
@@ -88,10 +91,11 @@ public class LeaderActivity extends AppCompatActivity {
         }
         @Override
         public void run() {
-            dataObjectToSend.setFileUri(uri);
+
             if(uri!=null) {
                 dataObjectToSend.setFile(makeFileFromUri(uri));
-                getInfoAboutFile(uri, dataObjectToSend);
+                dataObjectToSend.setUriInfo(uriInfo);
+                dataObjectToSend.setType(Utils.getDataType(uriInfo.getFullFileName()));
             }
             Message msg = Message.obtain(null, ServerService.SEND_NEW_DATA_TO_LISTENERS, 0, 0);
             msg.obj=dataObjectToSend;
@@ -167,35 +171,59 @@ public class LeaderActivity extends AppCompatActivity {
 
             if (resultData != null) {
                 uri = resultData.getData();
+                uriInfo = getInfoAboutUri(uri);
                 if (uri != null) {
                     LogUtil.logDebugToConsole( "Uri: " + uri.getPath());
                 }else{
                     LogUtil.logDebugToConsole("Selected file uri is null.");
                 }
-                String type = resultData.getType();
-                if(type !=null)
-                imageView.setImageURI(uri);
+
+                if(Utils.getDataType(uriInfo.getFullFileName()) == DATA_TYPE.IMG ) {
+                    labelFileName.setVisibility(View.INVISIBLE);
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+
+                        imageView.setImageURI(uri);
+                        imageView.setMaxHeight(512);
+                        imageView.setMaxWidth(512);
+//                        imageView.setImageBitmap(getCorrectlyOrientedImage(getApplicationContext(),uri));
+                        imageView.setVisibility(View.VISIBLE);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                else {
+                    imageView.setVisibility(View.INVISIBLE);
+                    labelFileName.setVisibility(View.VISIBLE);
+                    labelFileName.setText(uriInfo.getDisplayFileName());
+                }
+
             }
         }
     }
-    private void getInfoAboutFile(Uri uri,DataObjectToSend dots){
+
+    private UriInfo getInfoAboutUri(Uri uri){
+        UriInfo uriInfo = new UriInfo(uri);
         ContentResolver contentResolver = this.getContentResolver();
         Cursor cursor = contentResolver.query(uri,null, null, null, null);
         cursor.moveToFirst();
-        dots.setLength(cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE)));
-        dots.setFileName(cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)));
+        uriInfo.setLength(cursor.getLong(cursor.getColumnIndex(OpenableColumns.SIZE)));
+        String displayFileName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+        uriInfo.setDisplayFileName(displayFileName);
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         String type = mime.getExtensionFromMimeType(contentResolver.getType(uri));
+        uriInfo.setFileExtension(type);
+        String extension = FilenameUtils.getExtension( displayFileName);
+        String fullFileName = new String( displayFileName);
+        if(extension.equals("")){
+           fullFileName += "."+type;
+        }
+        uriInfo.setFullFileName(fullFileName);
 
-        String extension = FilenameUtils.getExtension( dots.getFileName());
-        if(extension.equals("")) dots.setFileName(dots.getFileName()+"."+type);
-        if(type ==null) type=extension;
-        if(type.endsWith("jpg") || type.endsWith("png")) dots.setType(DATA_TYPE.IMG);
-        else if(dots.getFileName().endsWith("pdf")) {
-            dots.setType(DATA_TYPE.PDF);
-        } else dots.setType(DATA_TYPE.OTHER);
         cursor.close();
 
+        return  uriInfo;
     }
     private File makeFileFromUri(Uri uri) {
         File copy = new File(getFilesDir(),"shareDataCopy");
@@ -208,5 +236,4 @@ public class LeaderActivity extends AppCompatActivity {
 
         return copy;
     }
-
 }

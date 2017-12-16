@@ -21,16 +21,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
-        android:hint="Message for listeners."/>
+        android:hint="@string/message_for_listeners_hint"/>
 
         <Button
             android:id="@+id/button"
+            android:layout_marginTop="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Wybierz"
+            android:text="@string/chooser_button"
             android:onClick="chooseFileOnClick"/>
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:enabled="false"
+            android:labelFor="@+id/sharedFileName"
+            android:inputType="none"
+            android:text="@string/shared_now"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/sharedFileName"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:ems="10"
+            android:inputType="none"
+            android:textColor="#222"/>
+
         <ImageView
             android:id="@+id/imageToSend"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -43,12 +68,12 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Wyslij !"
+        android:text="@string/send_button"
         android:onClick="updateViewContentOnClick"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zakoncz"
+            android:text="@string/close_button"
             android:onClick="switchOffOnClick"/>
 
     </LinearLayout>

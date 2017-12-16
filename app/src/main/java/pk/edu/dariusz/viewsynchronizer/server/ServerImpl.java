@@ -67,16 +67,6 @@ public class ServerImpl implements ServerViewSynchronizer {
         }
     }
 
-   /* @Override
-    public void sendFileForListeners(InputStream file, DATA_TYPE type) {
-        LogUtil.logInfoToConsole("Sending file to listeners. Path: ");
-        if(listenersSocket != null && listenersSocket.size() > 0) {
-            new SendReplyWithFileToSocketsThread(listenersSocket,file,type).run();
-        }else{
-            LogUtil.logInfoToConsole("No listeners connected to server.");
-        }
-    }*/
-
     public void closeServer() {
         LogUtil.logDebugToConsole("Closing server - closeServer()");
         if (serverSocketListener != null) {

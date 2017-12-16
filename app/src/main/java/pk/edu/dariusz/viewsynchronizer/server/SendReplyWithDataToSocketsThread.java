@@ -70,7 +70,7 @@ public class SendReplyWithDataToSocketsThread extends Thread {
         DataOutputStream dataOutputStream = new DataOutputStream(socketOutputStream);
 
         dataOutputStream.writeUTF(dataType);
-        long length = data.getFile() !=null ?  data.getLength() : 0;
+        long length = data.getFile() !=null ?  data.getUriInfo().getLength() : 0;
         dataOutputStream.writeLong(length);
         dataOutputStream.writeUTF(data.getMessage());
        // dataOutputStream.flush();
@@ -81,7 +81,7 @@ public class SendReplyWithDataToSocketsThread extends Thread {
             case IMG:
             case PDF:
             case OTHER:
-                dataOutputStream.writeUTF(data.getFileName());
+                dataOutputStream.writeUTF(data.getUriInfo().getFullFileName());
                 LogUtil.logInfoToConsole("Sending binary filee to listener. Size: " + data.getFile().length());
                try( BufferedOutputStream bos = new BufferedOutputStream(socketOutputStream);
                     FileInputStream fis = new FileInputStream(data.getFile())) {

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ViewSynchronizer</string>
+    <string name="message_for_listeners_hint">Wiadomość dla obserwujących.</string>
+    <string name="chooser_button">Wybierz plik</string>
+    <string name="send_button">Wyslij !</string>
+    <string name="close_button">Zakoncz</string>
+    <string name="shared_now">Udostępniane teraz:</string>
 </resources>
