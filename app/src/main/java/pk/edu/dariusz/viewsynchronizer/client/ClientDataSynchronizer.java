@@ -31,9 +31,11 @@ public class ClientDataSynchronizer {
     private Socket serverSocket;
     private SocketAddress socketAddress;
     private BufferedReader in;
+    private File directoryForData;
 
-    public ClientDataSynchronizer(String address, int port) throws IOException {
+    public ClientDataSynchronizer(String address, int port,File directoryForData) throws IOException {
         socketAddress = new InetSocketAddress(address,port);
+        this.directoryForData=directoryForData;
 /*        in = new BufferedReader(new InputStreamReader(
                 serverSocket.getInputStream()));*/
     }
@@ -79,9 +81,12 @@ public class ClientDataSynchronizer {
             case IMG:
                 String fileName = dataInputStream.readUTF();
                 LogUtil.logDebugToConsole("FILE NAME: " +fileName);
+                leaderDataObject.setOriginalFileName(fileName);
                 String extension = FilenameUtils.getExtension(fileName);
-                File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()+File.separator + "temp."+extension);
-                try (FileOutputStream out = new FileOutputStream(outFile)) {
+                // WRITING TO EXTERNAL STORAGE
+                /*File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
+                        +File.separator + "temp."+extension);*/
+                try (FileOutputStream out = new FileOutputStream(directoryForData)) {
                     //int bytes = IOUtils.copy(inputStream,out);
                     /*long lenght = Long.parseLong(headers[1]);
                     //Utils.copyBetweenStreams(inputStream, out);
@@ -99,7 +104,7 @@ public class ClientDataSynchronizer {
                     inputStream.close();
                     serverSocket.close();
                     serverSocket=null;
-                    leaderDataObject.setFile(outFile);
+                    leaderDataObject.setFile(directoryForData);
                 }
                     break;
             }

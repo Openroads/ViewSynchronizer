@@ -15,6 +15,7 @@ import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
+import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 /**
  * Created by dariusz on 11/15/17.
@@ -23,7 +24,7 @@ import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
 public class ClientViewSynchronizerService extends Service {
     // Binder given to clients
     private LeaderDataObject data = new LeaderDataObject("Waiting...");
-    private File file;
+    private File tempDirectoryForData;
     int areNewData = 0;
     private final IBinder mBinder = new LocalBinder();
     private String address;
@@ -61,6 +62,7 @@ public class ClientViewSynchronizerService extends Service {
         */
         address="192.168.43.1";
         port=6000;
+        tempDirectoryForData = new File(getFilesDir(),"file_from_leader");
         if(clientDataSynchronizer==null) new NewDataOnSocketCheckerThread().start();
 
         return START_NOT_STICKY;
@@ -73,6 +75,11 @@ public class ClientViewSynchronizerService extends Service {
                 clientDataSynchronizer.closeSynchronizer();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            if(tempDirectoryForData!=null){
+                Utils.removeDirectoryOrFile(tempDirectoryForData);
+
+            }
         }
         super.onDestroy();
     }
@@ -92,10 +99,8 @@ public class ClientViewSynchronizerService extends Service {
     public LeaderDataObject getCurrentData(){
         return  data;
     }
-    public File fetchFileFromServer() {
-        new FetchFileFromServerThread().start();
-        return file;
-    }
+
+
     private class NewDataOnSocketCheckerThread extends Thread{
 
         @Override
@@ -104,15 +109,17 @@ public class ClientViewSynchronizerService extends Service {
                 /*String findAddress = Utils.checkHostsInLANForServerIp();
                 if(!findAddress.equals(""))
                     address= findAddress;*/
-                clientDataSynchronizer = new ClientDataSynchronizer(address,port);
+
+                clientDataSynchronizer = new ClientDataSynchronizer(address,port,tempDirectoryForData);
+
                 REQUEST_TYPE type = REQUEST_TYPE.FIRST;
                 while(true) {
                    // clientDataSynchronizer.connect();
                     data = clientDataSynchronizer.fetchDataFromServer(type);
                     areNewData = 1;
                     LogUtil.logInfoToConsole("Are new data :)");
-//                    type = data.isDataFileCorrect() ? REQUEST_TYPE.GET_NEXT:REQUEST_TYPE.REFRESH;
-                    type=REQUEST_TYPE.GET_NEXT;
+                    type = data.isDataFileCorrect() ? REQUEST_TYPE.GET_NEXT:REQUEST_TYPE.REFRESH;
+//                    type=REQUEST_TYPE.GET_NEXT;
                     LogUtil.logInfoToConsole("Checksum: " + data.isDataFileCorrect());
                 }
             } catch (IOException e) {
@@ -122,14 +129,19 @@ public class ClientViewSynchronizerService extends Service {
             }
         }
     }
-    private class FetchFileFromServerThread extends Thread{
+/*
+    public File fetchFileFromServer() {
+        new FetchFileFromServerThread().start();
+        return file;
+    }
+   private class FetchFileFromServerThread extends Thread{
 
         @Override
         public void run() {
             try {
-                /*String findAddress = Utils.checkHostsInLANForServerIp();
+                *//*String findAddress = Utils.checkHostsInLANForServerIp();
                 if(!findAddress.equals(""))
-                    address= findAddress;*/
+                    address= findAddress;*//*
                 clientDataSynchronizer = new ClientDataSynchronizer(address,port);
 
                     file = clientDataSynchronizer.fetchFileFromServer();
@@ -140,5 +152,5 @@ public class ClientViewSynchronizerService extends Service {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 }

@@ -20,11 +20,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".server.activities.LeaderActivity" />
-
+        <activity android:name=".client.activities.JoinerActivity"></activity>
         <service android:name=".server.services.ServerService" />
         <service android:name=".client.services.ClientViewSynchronizerService" />
 
-        <activity android:name=".client.activities.JoinerActivity"></activity>
+
+
+        <provider android:name=".commons.ProviderToOpenPrivateFile" android:authorities="pk.edu.dariusz.viewsynchronizer" android:exported="true" />
+
     </application>
 
 </manifest>

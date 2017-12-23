@@ -1,5 +1,6 @@
 package pk.edu.dariusz.viewsynchronizer.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -134,5 +135,13 @@ public class Utils {
         }
 
         return  data_type;
+    }
+
+    public static void removeDirectoryOrFile(File fileOrDirectory){
+        if (fileOrDirectory.isDirectory())
+        for (File child : fileOrDirectory.listFiles())
+            removeDirectoryOrFile(child);
+
+        fileOrDirectory.delete();
     }
 }

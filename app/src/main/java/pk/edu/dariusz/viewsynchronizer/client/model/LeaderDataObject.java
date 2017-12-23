@@ -14,6 +14,7 @@ public class LeaderDataObject {
 
     private String message;
     private File file;
+    private String originalFileName;
     private long fileSizeCheckSum;
 
     public LeaderDataObject(String message) {
@@ -46,6 +47,14 @@ public class LeaderDataObject {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
     public long getFileSizeCheckSum() {

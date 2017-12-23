@@ -5,4 +5,5 @@
     <string name="send_button">Wyslij !</string>
     <string name="close_button">Zakoncz</string>
     <string name="shared_now">Udostępniane teraz:</string>
+    <string name="download_allow">Zapisywanie</string>
 </resources>

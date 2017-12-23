@@ -25,11 +25,24 @@
 
         <Button
             android:id="@+id/button"
-            android:layout_marginTop="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/chooser_button"
             android:onClick="chooseFileOnClick"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:padding="15dp">
+
+        <Switch
+            android:id="@+id/downloadSwitcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/download_allow"
+            />
+    </LinearLayout>
 
         <EditText
             android:id="@+id/editText"

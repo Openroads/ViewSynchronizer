@@ -23,6 +23,7 @@ import pk.edu.dariusz.viewsynchronizer.client.services.ClientViewSynchronizerSer
 import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
+import pk.edu.dariusz.viewsynchronizer.utils.ViewSynchronizerConstants;
 
 public class JoinerActivity extends AppCompatActivity {
     private ClientViewSynchronizerService mService;
@@ -149,8 +150,11 @@ public class JoinerActivity extends AppCompatActivity {
 
     public void openFileFromServerOnClick(View view) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(leaderDataObject.getFile().getName()));
-        intent.setDataAndType(Uri.fromFile(leaderDataObject.getFile()), mime);
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(leaderDataObject.getOriginalFileName()));
+//        Uri data = Uri.fromFile(leaderDataObject.getFile());
+        Uri data = Uri.parse("content://"+ ViewSynchronizerConstants.APP_PACKAGE_NAME+"/"+leaderDataObject.getFile().getName());
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(data, mime);
         startActivity(intent);
         /*new Thread() {
             public void run() {
