@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer.client;
+package pk.edu.dariusz.viewsynchronizer.client.model;
 
 import java.io.File;
 

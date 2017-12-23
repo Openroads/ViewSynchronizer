@@ -2,6 +2,8 @@ package pk.edu.dariusz.viewsynchronizer.server;
 
 import java.net.ServerSocket;
 
+import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
+
 /**
  * Created by dariusz on 11/15/17.
  */

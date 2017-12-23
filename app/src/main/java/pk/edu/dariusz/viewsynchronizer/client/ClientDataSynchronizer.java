@@ -12,13 +12,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
@@ -42,7 +41,7 @@ public class ClientDataSynchronizer {
         if (serverSocket != null) serverSocket.close();
     }
 
-    //TODO to implement for any kind of data
+
     public LeaderDataObject fetchDataFromServer(REQUEST_TYPE request_type) throws IOException {
 
         //making reconnection to server

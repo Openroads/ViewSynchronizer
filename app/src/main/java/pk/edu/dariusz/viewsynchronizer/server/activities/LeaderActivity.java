@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer;
+package pk.edu.dariusz.viewsynchronizer.server.activities;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -30,10 +30,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import pk.edu.dariusz.viewsynchronizer.R;
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
-import pk.edu.dariusz.viewsynchronizer.server.DataObjectToSend;
-import pk.edu.dariusz.viewsynchronizer.server.ServerService;
-import pk.edu.dariusz.viewsynchronizer.server.UriInfo;
+import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
+import pk.edu.dariusz.viewsynchronizer.server.services.ServerService;
+import pk.edu.dariusz.viewsynchronizer.server.model.UriInfo;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 

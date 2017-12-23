@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer.client;
+package pk.edu.dariusz.viewsynchronizer.client.services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import pk.edu.dariusz.viewsynchronizer.client.ClientDataSynchronizer;
+import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
@@ -57,7 +59,7 @@ public class ClientViewSynchronizerService extends Service {
         address = intent.getStringExtra("serverAddress");
         port = intent.getIntExtra("serverPort",6000);
         */
-        address="192.168.1.101";
+        address="192.168.43.1";
         port=6000;
         if(clientDataSynchronizer==null) new NewDataOnSocketCheckerThread().start();
 
@@ -82,6 +84,7 @@ public class ClientViewSynchronizerService extends Service {
             areNewData=0;
             return data;
         }else {
+            areNewData=0;//TODO ?
             throw new ServerDisconnected("Leader has  switched off the server");
         }
 

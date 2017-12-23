@@ -2,16 +2,8 @@ package pk.edu.dariusz.viewsynchronizer.server;
 
 import android.util.Log;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -25,14 +17,14 @@ import java.util.List;
 import java.util.Set;
 
 import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
+import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
-import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 /**
  * Created by dariusz on 11/15/17.
  */
 
-public class ServerImpl implements ServerViewSynchronizer {
+public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
     private ServerSocket serverSocketListener;
     private DataObjectToSend dataToSend = new DataObjectToSend("Default data from leader :)");
     private int serverPort;
@@ -41,7 +33,7 @@ public class ServerImpl implements ServerViewSynchronizer {
     private Set<String> knownListeners=new HashSet<>();
 
 
-    public ServerImpl(int serverPort) {
+    public ServerViewSynchronizerImpl(int serverPort) {
         this.serverPort = serverPort;
     }
 

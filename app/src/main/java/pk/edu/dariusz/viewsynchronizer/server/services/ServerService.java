@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer.server;
+package pk.edu.dariusz.viewsynchronizer.server.services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -9,6 +9,9 @@ import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import pk.edu.dariusz.viewsynchronizer.server.ServerViewSynchronizerImpl;
+import pk.edu.dariusz.viewsynchronizer.server.ServerViewSynchronizer;
+import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.utils.ViewSynchronizerConstants;
 
@@ -41,7 +44,7 @@ public class ServerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        viewSynchronizerServer = new ServerImpl(serverSocketPort);
+        viewSynchronizerServer = new ServerViewSynchronizerImpl(serverSocketPort);
         viewSynchronizerServer.runServer();
         LogUtil.logDebugToConsole("ServerService - onCreate()");
     }
@@ -59,7 +62,7 @@ public class ServerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LogUtil.logDebugToConsole("ServerService - onStartCommand()");
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override

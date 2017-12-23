@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer;
+package pk.edu.dariusz.viewsynchronizer.client.activities;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,10 +18,9 @@ import android.widget.TextView;
 
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
-
-import pk.edu.dariusz.viewsynchronizer.client.ClientViewSynchronizerService;
-import pk.edu.dariusz.viewsynchronizer.client.LeaderDataObject;
+import pk.edu.dariusz.viewsynchronizer.R;
+import pk.edu.dariusz.viewsynchronizer.client.services.ClientViewSynchronizerService;
+import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
 
@@ -126,6 +125,7 @@ public class JoinerActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                stopService(checkerServiceIntent);
                                 finish();
                             }
                         });

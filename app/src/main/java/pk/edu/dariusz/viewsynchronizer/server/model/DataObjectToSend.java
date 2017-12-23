@@ -1,8 +1,9 @@
-package pk.edu.dariusz.viewsynchronizer.server;
+package pk.edu.dariusz.viewsynchronizer.server.model;
 
 import java.io.File;
 
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.server.model.UriInfo;
 
 /**
  * Created by dariusz on 11/25/17.

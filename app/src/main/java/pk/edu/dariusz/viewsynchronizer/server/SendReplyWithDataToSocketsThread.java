@@ -1,22 +1,18 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
-import android.content.Context;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 
 /**

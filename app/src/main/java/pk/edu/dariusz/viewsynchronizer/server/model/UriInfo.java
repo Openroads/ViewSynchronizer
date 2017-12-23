@@ -1,4 +1,4 @@
-package pk.edu.dariusz.viewsynchronizer.server;
+package pk.edu.dariusz.viewsynchronizer.server.model;
 
 import android.net.Uri;
 

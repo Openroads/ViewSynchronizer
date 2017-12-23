@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import pk.edu.dariusz.viewsynchronizer.client.activities.JoinerActivity;
+import pk.edu.dariusz.viewsynchronizer.server.activities.LeaderActivity;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 
 public class MainActivity extends AppCompatActivity {

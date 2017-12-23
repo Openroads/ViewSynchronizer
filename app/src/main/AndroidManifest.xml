@@ -19,12 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LeaderActivity" />
+        <activity android:name=".server.activities.LeaderActivity" />
 
-        <service android:name=".server.ServerService" />
-        <service android:name=".client.ClientViewSynchronizerService" />
+        <service android:name=".server.services.ServerService" />
+        <service android:name=".client.services.ClientViewSynchronizerService" />
 
-        <activity android:name=".JoinerActivity"></activity>
+        <activity android:name=".client.activities.JoinerActivity"></activity>
     </application>
 
 </manifest>

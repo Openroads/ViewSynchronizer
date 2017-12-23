@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="pk.edu.dariusz.viewsynchronizer.JoinerActivity">
+    tools:context="pk.edu.dariusz.viewsynchronizer.client.activities.JoinerActivity">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
