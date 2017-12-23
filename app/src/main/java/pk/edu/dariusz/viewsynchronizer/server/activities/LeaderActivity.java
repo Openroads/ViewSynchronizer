@@ -21,6 +21,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,6 +43,7 @@ public class LeaderActivity extends AppCompatActivity {
 
     private static final int MAX_IMAGE_DIMENSION = 512;
     private EditText editTextShareMessage;
+    private Switch downloadAllowedSwitch;
     private EditText labelFileName;
     private ImageView imageView;
     private Uri uri;
@@ -60,6 +62,7 @@ public class LeaderActivity extends AppCompatActivity {
         LogUtil.logDebugToConsole("LeaderActivity onCreate()");
         setContentView(R.layout.activity_leader);
         editTextShareMessage = (EditText) findViewById(R.id.editTextToSend);
+        downloadAllowedSwitch =(Switch) findViewById(R.id.downloadSwitcher);
         imageView = (ImageView) findViewById(R.id.imageToSend);
         labelFileName = (EditText) findViewById(R.id.sharedFileName);
         serviceIntent = new Intent(this, ServerService.class);
@@ -96,6 +99,7 @@ public class LeaderActivity extends AppCompatActivity {
             if(uri!=null) {
                 dataObjectToSend.setFile(makeFileFromUri(uri));
                 dataObjectToSend.setUriInfo(uriInfo);
+                dataObjectToSend.setFileAllowedToDownload(downloadAllowedSwitch.isChecked());
                 dataObjectToSend.setType(Utils.getDataType(uriInfo.getFullFileName()));
             }
             Message msg = Message.obtain(null, ServerService.SEND_NEW_DATA_TO_LISTENERS, 0, 0);

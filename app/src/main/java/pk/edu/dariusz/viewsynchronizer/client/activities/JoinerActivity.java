@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,24 +16,34 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 
 import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 import pk.edu.dariusz.viewsynchronizer.R;
 import pk.edu.dariusz.viewsynchronizer.client.services.ClientViewSynchronizerService;
 import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.commons.ServerDisconnected;
+import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 import pk.edu.dariusz.viewsynchronizer.utils.ViewSynchronizerConstants;
 
 public class JoinerActivity extends AppCompatActivity {
+    private final int REQUEST_DIRECTORY = 112;
     private ClientViewSynchronizerService mService;
     private boolean mBound = false;
     private  Intent checkerServiceIntent;
     private TextView textView;
     private ImageView imageView;
     private Button dataLeaderOpener;
+    private Button saveDataButton;
     private LeaderDataObject leaderDataObject;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +51,7 @@ public class JoinerActivity extends AppCompatActivity {
         textView= (TextView)findViewById(R.id.displayContent);
         imageView= (ImageView) findViewById(R.id.imageFromServer);
         dataLeaderOpener = (Button) findViewById(R.id.openFileFromLeaderButton);
+        saveDataButton = (Button) findViewById(R.id.downloadButton);
         checkerServiceIntent = new Intent(this, ClientViewSynchronizerService.class);
     }
 
@@ -115,6 +127,12 @@ public class JoinerActivity extends AppCompatActivity {
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
+                                                if(newData.isAllowedToDownload())
+                                                    saveDataButton.setVisibility(View.VISIBLE);
+                                                else
+                                                    saveDataButton.setVisibility(View.INVISIBLE);
+
+
                                                 dataLeaderOpener.setVisibility(View.VISIBLE);
                                             }
                                         });
@@ -141,6 +159,40 @@ public class JoinerActivity extends AppCompatActivity {
         }
     };
 
+    public void saveFileOnClick(View view) {
+        /*
+        -----------------------FOR path choser------------------
+        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
+
+        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+                .newDirectoryName("DirChooserSample")
+                .allowReadOnlyDirectory(true)
+                .allowNewDirectoryNameModification(true)
+                .build();
+
+        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
+        */
+
+        File externalStorageDirectory = Environment.getExternalStorageDirectory();
+        File applicationDownloadDirectory= new File(externalStorageDirectory+ File.separator+ViewSynchronizerConstants.APPLICATION_DOWNLOAD_DIRECTORY_NAME);
+        boolean mkdir=true;
+        if(!applicationDownloadDirectory.exists()){
+             mkdir = applicationDownloadDirectory.mkdir();
+        }
+        if(mkdir) {
+            File outFile = new File(applicationDownloadDirectory, leaderDataObject.getOriginalFileName());
+            try {
+                Utils.copyFile(leaderDataObject.getFile(), outFile);
+                Toast.makeText(this, getString(R.string.succesfully_saved_toast_message)+" " +ViewSynchronizerConstants.APPLICATION_DOWNLOAD_DIRECTORY_NAME,Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+               LogUtil.logErrorToConsole("Error during move file from internal to external storage.",e);
+                Toast.makeText(this, R.string.cant_save_info,Toast.LENGTH_LONG).show();
+            }
+        }else{
+            Toast.makeText(this, R.string.cant_save_info,Toast.LENGTH_LONG).show();
+        }
+    }
     public void unsubscribeOnClick(View view) {
         unbindService(mConnection);
         mBound=false;
@@ -156,24 +208,7 @@ public class JoinerActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(data, mime);
         startActivity(intent);
-        /*new Thread() {
-            public void run() {
-
-                    fileFromServer = mService.fetchFileFromServer();
-                    while(true)
-                    if(fileFromServer!=null) {
-                        final Uri uri = Uri.fromFile(fileFromServer);
-                        if (uri != null)
-                            runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                        imageView.setImageURI(uri);
-                                }
-                            });
-                    }
-
-            }
-        }.start();*/
     }
+
+
 }

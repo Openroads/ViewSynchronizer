@@ -82,24 +82,15 @@ public class ClientDataSynchronizer {
                 String fileName = dataInputStream.readUTF();
                 LogUtil.logDebugToConsole("FILE NAME: " +fileName);
                 leaderDataObject.setOriginalFileName(fileName);
+                boolean allowedToDownload = dataInputStream.readBoolean();
+                LogUtil.logDebugToConsole("DOWNLOADING: " +allowedToDownload);
+                leaderDataObject.setAllowedToDownload(allowedToDownload);
                 String extension = FilenameUtils.getExtension(fileName);
                 // WRITING TO EXTERNAL STORAGE
                 /*File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
                         +File.separator + "temp."+extension);*/
                 try (FileOutputStream out = new FileOutputStream(directoryForData)) {
-                    //int bytes = IOUtils.copy(inputStream,out);
-                    /*long lenght = Long.parseLong(headers[1]);
-                    //Utils.copyBetweenStreams(inputStream, out);
-                    long bytesToRead=lenght;
-                    byte[] buf = new byte[8192];
-                    int len = 0;
-                    while (bytesToRead >0 && (len = inputStream.read(buf,0, (int)Math.min(buf.length, bytesToRead))) != -1)  {
-                        out.write(buf, 0, len);
-                        bytesToRead-=len;
-                        LogUtil.logInfoToConsole(String.valueOf(bytesToRead));
-                    }
-                    LogUtil.logInfoToConsole(String.valueOf(bytesToRead));*/
-
+                    
                     IOUtils.copy(inputStream,out);
                     inputStream.close();
                     serverSocket.close();

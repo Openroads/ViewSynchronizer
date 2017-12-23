@@ -78,6 +78,7 @@ public class SendReplyWithDataToSocketsThread extends Thread {
             case PDF:
             case OTHER:
                 dataOutputStream.writeUTF(data.getUriInfo().getFullFileName());
+                dataOutputStream.writeBoolean(data.isFileAllowedToDownload());
                 LogUtil.logInfoToConsole("Sending binary filee to listener. Size: " + data.getFile().length());
                try( BufferedOutputStream bos = new BufferedOutputStream(socketOutputStream);
                     FileInputStream fis = new FileInputStream(data.getFile())) {

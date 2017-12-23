@@ -15,6 +15,7 @@ public class LeaderDataObject {
     private String message;
     private File file;
     private String originalFileName;
+    private boolean isAllowedToDownload;
     private long fileSizeCheckSum;
 
     public LeaderDataObject(String message) {
@@ -55,6 +56,14 @@ public class LeaderDataObject {
 
     public void setOriginalFileName(String originalFileName) {
         this.originalFileName = originalFileName;
+    }
+
+    public boolean isAllowedToDownload() {
+        return isAllowedToDownload;
+    }
+
+    public void setAllowedToDownload(boolean allowedToDownload) {
+        isAllowedToDownload = allowedToDownload;
     }
 
     public long getFileSizeCheckSum() {

@@ -6,4 +6,7 @@
     <string name="close_button">Zakoncz</string>
     <string name="shared_now">Udostępniane teraz:</string>
     <string name="download_allow">Zapisywanie</string>
+    <string name="save_button">Zapisz</string>
+    <string name="cant_save_info">Sorry, it\'s impossible to save file.</string>
+    <string name="succesfully_saved_toast_message">Successfully saved in directory</string>
 </resources>

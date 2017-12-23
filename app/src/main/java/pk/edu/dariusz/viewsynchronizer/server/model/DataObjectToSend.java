@@ -13,6 +13,7 @@ public class DataObjectToSend {
     private DATA_TYPE type;
     private String message;
     private File file;
+    private boolean isFileAllowedToDownload;
     private UriInfo uriInfo;
 
 
@@ -45,6 +46,14 @@ public class DataObjectToSend {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public boolean isFileAllowedToDownload() {
+        return isFileAllowedToDownload;
+    }
+
+    public void setFileAllowedToDownload(boolean fileAllowedToDownload) {
+        isFileAllowedToDownload = fileAllowedToDownload;
     }
 
     public UriInfo getUriInfo() {
