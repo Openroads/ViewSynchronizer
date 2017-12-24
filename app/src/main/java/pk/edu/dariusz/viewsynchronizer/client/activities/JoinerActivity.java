@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ public class JoinerActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button dataLeaderOpener;
     private Button saveDataButton;
+    private EditText fileNameEditText;
     private LeaderDataObject leaderDataObject;
 
 
@@ -52,6 +54,7 @@ public class JoinerActivity extends AppCompatActivity {
         imageView= (ImageView) findViewById(R.id.imageFromServer);
         dataLeaderOpener = (Button) findViewById(R.id.openFileFromLeaderButton);
         saveDataButton = (Button) findViewById(R.id.downloadButton);
+        fileNameEditText = (EditText) findViewById(R.id.sharedFileNameFromLeaderET);
         checkerServiceIntent = new Intent(this, ClientViewSynchronizerService.class);
     }
 
@@ -99,7 +102,7 @@ public class JoinerActivity extends AppCompatActivity {
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                textView.setText(newData.getMessage());
+                                                textView.setText(leaderDataObject.getMessage());
                                             }
                                         });
                                         break;
@@ -109,33 +112,25 @@ public class JoinerActivity extends AppCompatActivity {
                                             @Override
                                             public void run() {
                                                 BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                                                Bitmap bitmap = BitmapFactory.decodeFile(newData.getFile().getAbsolutePath(), bmOptions);
+                                                Bitmap bitmap = BitmapFactory.decodeFile(leaderDataObject.getFile().getAbsolutePath(), bmOptions);
                                                 //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
                                                 imageView.setImageBitmap(bitmap);
 
 //                                            imageView.setImageURI(Uri.fromFile(newData.getFile()));
 
-                                                if (newData.getMessage() != null)
-                                                    textView.setText(newData.getMessage());
+                                                if (leaderDataObject.getMessage() != null)
+                                                    textView.setText(leaderDataObject.getMessage());
 
                                                 imageView.invalidate();
 
                                             }
                                         });
+                                        setButtonsVisibility(false);
+                                        break;
                                     case PDF:
                                     case OTHER:
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if(newData.isAllowedToDownload())
-                                                    saveDataButton.setVisibility(View.VISIBLE);
-                                                else
-                                                    saveDataButton.setVisibility(View.INVISIBLE);
+                                     setButtonsVisibility(true);
 
-
-                                                dataLeaderOpener.setVisibility(View.VISIBLE);
-                                            }
-                                        });
                                 }
                             }
                         }
@@ -153,6 +148,28 @@ public class JoinerActivity extends AppCompatActivity {
             }.start();
         }
 
+        private void setButtonsVisibility(final boolean fileNameVisibility){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(leaderDataObject.isAllowedToDownload())
+                        saveDataButton.setVisibility(View.VISIBLE);
+                    else
+                        saveDataButton.setVisibility(View.INVISIBLE);
+
+                    if(fileNameVisibility) {
+                        imageView.setImageDrawable(null);
+                        fileNameEditText.setVisibility(View.VISIBLE);
+                        fileNameEditText.setText(leaderDataObject.getOriginalFileName());
+                    }
+                    else
+                        fileNameEditText.setVisibility(View.INVISIBLE);
+
+
+                    dataLeaderOpener.setVisibility(View.VISIBLE);
+                }
+            });
+        }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;

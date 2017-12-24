@@ -42,9 +42,20 @@
 
 </LinearLayout>
 
+    <EditText
+        android:id="@+id/sharedFileNameFromLeaderET"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:ems="10"
+        android:inputType="none"
+        android:textColor="#222"/>
+
     <ImageView
         android:id="@+id/imageFromServer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
 </LinearLayout>
 </android.support.constraint.ConstraintLayout>
