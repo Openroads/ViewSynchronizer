@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class JoinerActivity extends AppCompatActivity {
     private Button dataLeaderOpener;
     private Button saveDataButton;
     private EditText fileNameEditText;
+    private RelativeLayout downloadElementsInRelativeLayout;
     private LeaderDataObject leaderDataObject;
 
 
@@ -58,6 +60,7 @@ public class JoinerActivity extends AppCompatActivity {
         dataLeaderOpener = (Button) findViewById(R.id.openFileFromLeaderButton);
         saveDataButton = (Button) findViewById(R.id.downloadButton);
         fileNameEditText = (EditText) findViewById(R.id.sharedFileNameFromLeaderET);
+        downloadElementsInRelativeLayout = (RelativeLayout) findViewById(R.id.downloadElementsRelativeLayout);
         checkerServiceIntent = new Intent(this, ClientViewSynchronizerService.class);
     }
 
@@ -97,32 +100,21 @@ public class JoinerActivity extends AppCompatActivity {
 
                             final int newDataProgressPercent = mService.checkForNewData();
                             if(newDataProgressPercent > 0 && newDataProgressPercent <100){
-                               if(downloadProgressBar.getVisibility() != View.VISIBLE) {
+                               if(downloadElementsInRelativeLayout.getVisibility() != View.VISIBLE) {
                                    runOnUiThread(new Runnable() {
                                        @Override
                                        public void run() {
-                                           downloadProgressBar.setVisibility(View.VISIBLE);
+                                           downloadElementsInRelativeLayout.setVisibility(View.VISIBLE);
                                        }
                                    });
                                }
                                downloadProgressBar.setProgress(newDataProgressPercent);
-                             /*   runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                       // LogUtil.logInfoToConsole("DONWLOAD PERCENTAGE IN ACTIVITY: "+ newDataProgressPercent);
-                                       // if(downloadProgressBar.getVisibility() != View.VISIBLE)
-                                            downloadProgressBar.setVisibility(View.VISIBLE);
-
-                                       // downloadProgressBar.setProgress(newDataProgressPercent);
-
-                                    }
-                                });*/
 
                             }else if(newDataProgressPercent ==100) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        downloadProgressBar.setVisibility(View.GONE);
+                                        downloadElementsInRelativeLayout.setVisibility(View.GONE);
                                     }
                                 });
 
@@ -148,8 +140,6 @@ public class JoinerActivity extends AppCompatActivity {
                                                     Bitmap bitmap = BitmapFactory.decodeFile(leaderDataObject.getFile().getAbsolutePath(), bmOptions);
                                                     //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
                                                     imageView.setImageBitmap(bitmap);
-
-//                                            imageView.setImageURI(Uri.fromFile(newData.getFile()));
 
                                                     if (leaderDataObject.getMessage() != null)
                                                         textView.setText(leaderDataObject.getMessage());

@@ -3,7 +3,6 @@ package pk.edu.dariusz.viewsynchronizer.client;
 import android.os.Environment;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -59,23 +58,15 @@ public class ClientDataSynchronizer {
         DataInputStream dataInputStream = new DataInputStream(inputStream);
 
 
-        String headers = dataInputStream.readUTF();//.split(";");
+        String dataType = dataInputStream.readUTF();//.split(";");
         long size = dataInputStream.readLong();
         String message = dataInputStream.readUTF();
-        /*String datatype = "DataType=";
-        int lastIndexOf = headers[0].indexOf(datatype) + datatype.length();
-        datatype = headers[0].substring(lastIndexOf, lastIndexOf + 1);
-        String length="Length=";
-        lastIndexOf = headers[0].indexOf(length) + datatype.length();
-        length = headers[0].substring(lastIndexOf, lastIndexOf + 1);*/
-        //DATA_TYPE type = DATA_TYPE.values()[Integer.parseInt(headers[0])];
-        DATA_TYPE type = DATA_TYPE.valueOf(headers);
+        DATA_TYPE type = DATA_TYPE.valueOf(dataType);
         leaderDataObject.setType(type);
         leaderDataObject.setMessage(message);
-        leaderDataObject.setFileSizeCheckSum(size);
+        leaderDataObject.setFileSize(size);
         switch (type) {
             case STRING_MSG:
-//                leaderDataObject.setDownloadProgress(100);
                 break;
             case OTHER:
             case PDF:
@@ -86,24 +77,20 @@ public class ClientDataSynchronizer {
                 boolean allowedToDownload = dataInputStream.readBoolean();
                 LogUtil.logDebugToConsole("DOWNLOADING: " +allowedToDownload);
                 leaderDataObject.setAllowedToDownload(allowedToDownload);
-                String extension = FilenameUtils.getExtension(fileName);
+
                 // WRITING TO EXTERNAL STORAGE
-                /*File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
+                /*String extension = FilenameUtils.getExtension(fileName);
+                File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
                         +File.separator + "temp."+extension);*/
                 try (FileOutputStream out = new FileOutputStream(directoryForData)) {
-                    
-                    //IOUtils.copy(inputStream,out);
                     byte[] buf = new byte[8192];
                     int len = 0;
                     int total=0;
                     while ((len = inputStream.read(buf)) != -1) {
                         total+=len;
                         out.write(buf, 0, len);
-                       // LogUtil.logInfoToConsole("Download pecentage: " + (int)(((double)total/(int)size) *100));
-                        leaderDataObject.setDownloadProgress((int)(((double)total/(int)size) *100));
                         leaderDataObject.getDownloadProgressAtomic().set((int)(((double)total/(int)size) *100));
                     }
-//                    leaderDataObject.setDownloadProgress(100);
                     inputStream.close();
                     serverSocket.close();
                     serverSocket=null;

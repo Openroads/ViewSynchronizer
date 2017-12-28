@@ -90,7 +90,6 @@ public class ClientViewSynchronizerService extends Service {
     }
 
     public LeaderDataObject getNewData() throws ServerDisconnected {
-        nextLeaderDataObject.setDownloadProgress(0);
         nextLeaderDataObject.getDownloadProgressAtomic().set(0);
         return data;
 
@@ -146,11 +145,8 @@ public class ClientViewSynchronizerService extends Service {
                         nextLeaderDataObject = new LeaderDataObject();
                         downloadProgress = 1;
                         data = clientDataSynchronizer.fetchDataFromServer(type, nextLeaderDataObject);
-                        nextLeaderDataObject.setDownloadProgress(100);
                         nextLeaderDataObject.getDownloadProgressAtomic().set(100);
-                        LogUtil.logInfoToConsole("Are new data :)");
                         type = data.isDataFileCorrect() ? REQUEST_TYPE.GET_NEXT : REQUEST_TYPE.REFRESH;
-//                    type=REQUEST_TYPE.GET_NEXT;
                         LogUtil.logInfoToConsole("Checksum: " + data.isDataFileCorrect());
                     }
                 }

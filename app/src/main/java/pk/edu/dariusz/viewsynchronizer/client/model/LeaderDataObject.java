@@ -17,8 +17,7 @@ public class LeaderDataObject {
     private File file;
     private String originalFileName;
     private boolean isAllowedToDownload;
-    private long fileSizeCheckSum;
-    private int downloadProgress;
+    private long fileSize;
     private final AtomicInteger downloadProgressAtomic = new AtomicInteger(0);
 
     public LeaderDataObject(String message) {
@@ -70,20 +69,12 @@ public class LeaderDataObject {
         isAllowedToDownload = allowedToDownload;
     }
 
-    public long getFileSizeCheckSum() {
-        return fileSizeCheckSum;
+    public long getFileSize() {
+        return fileSize;
     }
 
-    public void setFileSizeCheckSum(long fileSizeCheckSum) {
-        this.fileSizeCheckSum = fileSizeCheckSum;
-    }
-
-    public int getDownloadProgress() {
-        return downloadProgress;
-    }
-
-    public void setDownloadProgress(int downloadProgress) {
-        this.downloadProgress = downloadProgress;
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
     }
 
     public AtomicInteger getDownloadProgressAtomic() {
@@ -94,8 +85,8 @@ public class LeaderDataObject {
         if(file ==null)
             return true;
         else {
-            LogUtil.logDebugToConsole("F.length: " +file.length()+ "checksumfromserver:" +fileSizeCheckSum);
-            return file.length() == this.fileSizeCheckSum;
+            LogUtil.logDebugToConsole("F.length: " +file.length()+ "checksumfromserver:" + fileSize);
+            return file.length() == this.fileSize;
         }
         }
 }

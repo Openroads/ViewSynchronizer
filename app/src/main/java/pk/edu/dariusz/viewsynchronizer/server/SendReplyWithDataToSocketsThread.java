@@ -67,9 +67,8 @@ public class SendReplyWithDataToSocketsThread extends Thread {
     }
 
     private void sendMessageToSocket(Socket socket, DataObjectToSend data) throws IOException {
-        //String header = "DataType=" + data.getType().ordinal()+";Length="+data.getFileInputStream().available();
+
         String dataType = data.getType().name();
-        //if(data.getFileInputStream()!=null)header+=";"+data.getLength();
         OutputStream socketOutputStream = socket.getOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream(socketOutputStream);
 
@@ -77,7 +76,6 @@ public class SendReplyWithDataToSocketsThread extends Thread {
         long length = data.getFile() !=null ?  data.getUriInfo().getLength() : 0;
         dataOutputStream.writeLong(length);
         dataOutputStream.writeUTF(data.getMessage());
-       // dataOutputStream.flush();
 
         switch (data.getType()) {
             case STRING_MSG:
@@ -87,12 +85,10 @@ public class SendReplyWithDataToSocketsThread extends Thread {
             case OTHER:
                 dataOutputStream.writeUTF(data.getUriInfo().getFullFileName());
                 dataOutputStream.writeBoolean(data.isFileAllowedToDownload());
-                LogUtil.logInfoToConsole("Sending binary filee to listener. Size: " + data.getFile().length());
+                LogUtil.logInfoToConsole("Sending binary file to listener. Size: " + data.getFile().length());
                try( BufferedOutputStream bos = new BufferedOutputStream(socketOutputStream);
                     FileInputStream fis = new FileInputStream(data.getFile())) {
                    IOUtils.copy(fis, bos);
-//                   socketOutputStream.flush();
-//                   bos.close();
                }
                 LogUtil.logInfoToConsole("Flushed binary data");
                 break;

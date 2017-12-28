@@ -2,11 +2,14 @@
     <string name="app_name">ViewSynchronizer</string>
     <string name="message_for_listeners_hint">Wiadomość dla obserwujących.</string>
     <string name="chooser_button">Wybierz plik</string>
-    <string name="send_button">Wyslij !</string>
-    <string name="close_button">Zakoncz</string>
+    <string name="send_button">Wyślij !</string>
+    <string name="close_button">Zakończ</string>
     <string name="shared_now">Udostępniane teraz:</string>
     <string name="download_allow">Zapisywanie</string>
     <string name="save_button">Zapisz</string>
     <string name="cant_save_info">Sorry, it\'s impossible to save file.</string>
     <string name="succesfully_saved_toast_message">Successfully saved in directory</string>
+    <string name="downloading_textview_text">Pobieranie</string>
+    <string name="open_button_label">Otwórz</string>
+    <string name="unsubscribe_button_text">Unsubscribe</string>
 </resources>

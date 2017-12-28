@@ -13,12 +13,11 @@
     <TextView
         android:id="@+id/displayContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cos tu sie wyswietli"/>
+        android:layout_height="wrap_content" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Unsubscribe"
+        android:text="@string/unsubscribe_button_text"
         android:onClick="unsubscribeOnClick"/>
 <LinearLayout
     android:layout_width="wrap_content"
@@ -28,7 +27,7 @@
         android:id="@+id/openFileFromLeaderButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Otwórz"
+        android:text="@string/open_button_label"
         android:visibility="invisible"
         android:onClick="openFileFromServerOnClick"/>
 
@@ -41,7 +40,11 @@
         android:onClick="saveFileOnClick"/>
 
 </LinearLayout>
-
+<RelativeLayout
+    android:id="@+id/downloadElementsRelativeLayout"
+    android:layout_width="wrap_content"
+    android:visibility="invisible"
+    android:layout_height="wrap_content">
     <ProgressBar
         android:id="@+id/downloadProgressBar"
         style="?android:attr/progressBarStyleHorizontal"
@@ -49,7 +52,15 @@
         android:layout_height="wrap_content"
 
         />
-    <!--style="?android:attr/progressBarStyleHorizontal"-->
+    <TextView
+        android:id="@+id/DownloadTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/downloading_textview_text"
+        android:layout_alignLeft="@+id/downloadProgressBar"
+        android:layout_below="@+id/downloadProgressBar"/>
+</RelativeLayout>
+
     <EditText
         android:id="@+id/sharedFileNameFromLeaderET"
         android:visibility="invisible"
