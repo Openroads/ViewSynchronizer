@@ -1,6 +1,7 @@
 package pk.edu.dariusz.viewsynchronizer.client.model;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
@@ -17,9 +18,12 @@ public class LeaderDataObject {
     private String originalFileName;
     private boolean isAllowedToDownload;
     private long fileSizeCheckSum;
+    private int downloadProgress;
+    private final AtomicInteger downloadProgressAtomic = new AtomicInteger(0);
 
     public LeaderDataObject(String message) {
     this.message=message;
+    type=DATA_TYPE.STRING_MSG;
     }
 
     public LeaderDataObject() {
@@ -73,6 +77,19 @@ public class LeaderDataObject {
     public void setFileSizeCheckSum(long fileSizeCheckSum) {
         this.fileSizeCheckSum = fileSizeCheckSum;
     }
+
+    public int getDownloadProgress() {
+        return downloadProgress;
+    }
+
+    public void setDownloadProgress(int downloadProgress) {
+        this.downloadProgress = downloadProgress;
+    }
+
+    public AtomicInteger getDownloadProgressAtomic() {
+        return downloadProgressAtomic;
+    }
+
     public boolean isDataFileCorrect(){
         if(file ==null)
             return true;

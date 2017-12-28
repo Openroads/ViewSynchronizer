@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import org.apache.commons.io.FilenameUtils;
@@ -33,17 +35,22 @@ import java.io.IOException;
 
 import pk.edu.dariusz.viewsynchronizer.R;
 import pk.edu.dariusz.viewsynchronizer.commons.DATA_TYPE;
+import pk.edu.dariusz.viewsynchronizer.server.ServerViewSynchronizerImpl;
 import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
 import pk.edu.dariusz.viewsynchronizer.server.services.ServerService;
 import pk.edu.dariusz.viewsynchronizer.server.model.UriInfo;
 import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
 import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
+import static pk.edu.dariusz.viewsynchronizer.server.services.ServerService.SEND_NEW_DATA_TO_LISTENERS;
+
 public class LeaderActivity extends AppCompatActivity {
 
     private static final int MAX_IMAGE_DIMENSION = 512;
+
     private EditText editTextShareMessage;
     private Switch downloadAllowedSwitch;
+    private ProgressBar sendingProgressBar;
     private EditText labelFileName;
     private ImageView imageView;
     private Uri uri;
@@ -63,6 +70,7 @@ public class LeaderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_leader);
         editTextShareMessage = (EditText) findViewById(R.id.editTextToSend);
         downloadAllowedSwitch =(Switch) findViewById(R.id.downloadSwitcher);
+        sendingProgressBar =(ProgressBar) findViewById(R.id.sendingProgressBar);
         imageView = (ImageView) findViewById(R.id.imageToSend);
         labelFileName = (EditText) findViewById(R.id.sharedFileName);
         serviceIntent = new Intent(this, ServerService.class);
@@ -102,8 +110,9 @@ public class LeaderActivity extends AppCompatActivity {
                 dataObjectToSend.setFileAllowedToDownload(downloadAllowedSwitch.isChecked());
                 dataObjectToSend.setType(Utils.getDataType(uriInfo.getFullFileName()));
             }
-            Message msg = Message.obtain(null, ServerService.SEND_NEW_DATA_TO_LISTENERS, 0, 0);
+            Message msg = Message.obtain(null, SEND_NEW_DATA_TO_LISTENERS, 0, 0);
             msg.obj=dataObjectToSend;
+            msg.replyTo=responseMessengerReplyTo;
             try {
                 mServiceMessenger.send(msg);
             } catch (RemoteException e) {
@@ -116,7 +125,7 @@ public class LeaderActivity extends AppCompatActivity {
         super.onStop();
         // Unbind from the service
         if (mBounded) {
-            LogUtil.logDebugToConsole("LeaderAvtivity unbindService");
+            LogUtil.logDebugToConsole("LeaderActivity unbindService");
             unbindService(mConnection);
             mBounded = false;
         }
@@ -140,6 +149,22 @@ public class LeaderActivity extends AppCompatActivity {
         }
     };
 
+
+
+    private class ResponseFromServiceHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case ServerViewSynchronizerImpl.PROGRESS_STATE_MESSAGE_TYPE:
+                    LogUtil.logInfoToConsole("SENDING FINISHED "+msg.arg1);
+
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+    private final Messenger responseMessengerReplyTo = new Messenger(new ResponseFromServiceHandler());
     public void switchOffOnClick(View view) {
         if(mBounded) {
             unbindService(mConnection);

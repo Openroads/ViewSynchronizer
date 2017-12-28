@@ -1,5 +1,6 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
+import android.os.Message;
 import android.util.Log;
 
 import java.io.DataInputStream;
@@ -25,6 +26,7 @@ import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
  */
 
 public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
+    public static final int PROGRESS_STATE_MESSAGE_TYPE = 22;
     private ServerSocket serverSocketListener;
     private DataObjectToSend dataToSend = new DataObjectToSend("Default data from leader :)");
     private int serverPort;
@@ -49,11 +51,11 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
         return serverSocketListener;
     }
 
-    public void updateMessageForListeners(DataObjectToSend message) {
+    public void updateMessageForListeners(DataObjectToSend message, Message msgToRespondProgress) {
         LogUtil.logInfoToConsole("Updating message from: "+this.dataToSend.getMessage()+" to: " +message.getMessage());
         this.dataToSend = message;
         if(listenersSocket != null && listenersSocket.size() > 0) {
-            new SendReplyWithDataToSocketsThread(listenersSocket,message).run();
+            new SendReplyWithDataToSocketsThread(listenersSocket,message,msgToRespondProgress).start();
         }else{
             LogUtil.logInfoToConsole("No listeners connected to server.");
         }
@@ -84,7 +86,7 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
                     LogUtil.logDebugToConsole("ServerIsListening now on");
                     Socket socket = serverSocketListener.accept();
                     String clientAddress =Arrays.toString(socket.getInetAddress().getAddress());
-                    LogUtil.logInfoToConsole("Servect has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
+                    LogUtil.logInfoToConsole("Server has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
 
                     REQUEST_TYPE operation = null;
                     try{

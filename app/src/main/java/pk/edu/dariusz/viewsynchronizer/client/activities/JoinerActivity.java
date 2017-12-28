@@ -16,6 +16,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ public class JoinerActivity extends AppCompatActivity {
     private ClientViewSynchronizerService mService;
     private boolean mBound = false;
     private  Intent checkerServiceIntent;
+    private ProgressBar downloadProgressBar;
     private TextView textView;
     private ImageView imageView;
     private Button dataLeaderOpener;
@@ -50,6 +52,7 @@ public class JoinerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joiner);
+        downloadProgressBar = (ProgressBar)findViewById (R.id.downloadProgressBar);
         textView= (TextView)findViewById(R.id.displayContent);
         imageView= (ImageView) findViewById(R.id.imageFromServer);
         dataLeaderOpener = (Button) findViewById(R.id.openFileFromLeaderButton);
@@ -91,46 +94,83 @@ public class JoinerActivity extends AppCompatActivity {
                 public void run() {
                     try {
                         while (true) {
-                            final LeaderDataObject newData;
 
-                            newData = mService.checkForNewData();
+                            final int newDataProgressPercent = mService.checkForNewData();
+                            if(newDataProgressPercent > 0 && newDataProgressPercent <100){
+                               if(downloadProgressBar.getVisibility() != View.VISIBLE) {
+                                   runOnUiThread(new Runnable() {
+                                       @Override
+                                       public void run() {
+                                           downloadProgressBar.setVisibility(View.VISIBLE);
+                                       }
+                                   });
+                               }
+                               downloadProgressBar.setProgress(newDataProgressPercent);
+                             /*   runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                       // LogUtil.logInfoToConsole("DONWLOAD PERCENTAGE IN ACTIVITY: "+ newDataProgressPercent);
+                                       // if(downloadProgressBar.getVisibility() != View.VISIBLE)
+                                            downloadProgressBar.setVisibility(View.VISIBLE);
 
-                            if (newData != null) {
-                                leaderDataObject = newData;
-                                switch (newData.getType()) {
-                                    case STRING_MSG:
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                textView.setText(leaderDataObject.getMessage());
-                                            }
-                                        });
-                                        break;
-                                    case IMG:
-                                        runOnUiThread(new Runnable() {
+                                       // downloadProgressBar.setProgress(newDataProgressPercent);
 
-                                            @Override
-                                            public void run() {
-                                                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                                                Bitmap bitmap = BitmapFactory.decodeFile(leaderDataObject.getFile().getAbsolutePath(), bmOptions);
-                                                //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
-                                                imageView.setImageBitmap(bitmap);
+                                    }
+                                });*/
+
+                            }else if(newDataProgressPercent ==100) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        downloadProgressBar.setVisibility(View.GONE);
+                                    }
+                                });
+
+                                LeaderDataObject newData = mService.getNewData();
+
+                                if (newData != null) {
+                                    leaderDataObject = newData;
+                                    switch (leaderDataObject.getType()) {
+                                        case STRING_MSG:
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    textView.setText(leaderDataObject.getMessage());
+                                                }
+                                            });
+                                            break;
+                                        case IMG:
+                                            runOnUiThread(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                                    Bitmap bitmap = BitmapFactory.decodeFile(leaderDataObject.getFile().getAbsolutePath(), bmOptions);
+                                                    //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
+                                                    imageView.setImageBitmap(bitmap);
 
 //                                            imageView.setImageURI(Uri.fromFile(newData.getFile()));
 
-                                                if (leaderDataObject.getMessage() != null)
-                                                    textView.setText(leaderDataObject.getMessage());
+                                                    if (leaderDataObject.getMessage() != null)
+                                                        textView.setText(leaderDataObject.getMessage());
 
-                                                imageView.invalidate();
+                                                    imageView.invalidate();
 
-                                            }
-                                        });
-                                        setButtonsVisibility(false);
-                                        break;
-                                    case PDF:
-                                    case OTHER:
-                                     setButtonsVisibility(true);
-
+                                                }
+                                            });
+                                            setButtonsVisibility(false);
+                                            break;
+                                        case PDF:
+                                        case OTHER:
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (leaderDataObject.getMessage() != null)
+                                                        textView.setText(leaderDataObject.getMessage());
+                                                }
+                                            });
+                                            setButtonsVisibility(true);
+                                    }
                                 }
                             }
                         }
@@ -195,7 +235,7 @@ public class JoinerActivity extends AppCompatActivity {
         File applicationDownloadDirectory= new File(externalStorageDirectory+ File.separator+ViewSynchronizerConstants.APPLICATION_DOWNLOAD_DIRECTORY_NAME);
         boolean mkdir=true;
         if(!applicationDownloadDirectory.exists()){
-             mkdir = applicationDownloadDirectory.mkdir();
+            mkdir = applicationDownloadDirectory.mkdir();
         }
         if(mkdir) {
             File outFile = new File(applicationDownloadDirectory, leaderDataObject.getOriginalFileName());
@@ -203,7 +243,7 @@ public class JoinerActivity extends AppCompatActivity {
                 Utils.copyFile(leaderDataObject.getFile(), outFile);
                 Toast.makeText(this, getString(R.string.succesfully_saved_toast_message)+" " +ViewSynchronizerConstants.APPLICATION_DOWNLOAD_DIRECTORY_NAME,Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
-               LogUtil.logErrorToConsole("Error during move file from internal to external storage.",e);
+                LogUtil.logErrorToConsole("Error during move file from internal to external storage.",e);
                 Toast.makeText(this, R.string.cant_save_info,Toast.LENGTH_LONG).show();
             }
         }else{

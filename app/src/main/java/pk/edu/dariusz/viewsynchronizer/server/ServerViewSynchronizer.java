@@ -1,5 +1,7 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
+import android.os.Message;
+
 import java.net.ServerSocket;
 
 import pk.edu.dariusz.viewsynchronizer.server.model.DataObjectToSend;
@@ -16,6 +18,6 @@ public interface ServerViewSynchronizer {
     String getIpAddress();
 
 
-    void updateMessageForListeners(DataObjectToSend message);
+    void updateMessageForListeners(DataObjectToSend message, Message msg);
 
 }

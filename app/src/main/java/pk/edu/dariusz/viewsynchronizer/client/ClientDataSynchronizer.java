@@ -44,7 +44,7 @@ public class ClientDataSynchronizer {
     }
 
 
-    public LeaderDataObject fetchDataFromServer(REQUEST_TYPE request_type) throws IOException {
+    public LeaderDataObject fetchDataFromServer(REQUEST_TYPE request_type,LeaderDataObject leaderDataObject) throws IOException {
 
         //making reconnection to server
         reconnect();
@@ -58,7 +58,7 @@ public class ClientDataSynchronizer {
 
         DataInputStream dataInputStream = new DataInputStream(inputStream);
 
-        LeaderDataObject leaderDataObject = new LeaderDataObject();
+
         String headers = dataInputStream.readUTF();//.split(";");
         long size = dataInputStream.readLong();
         String message = dataInputStream.readUTF();
@@ -75,6 +75,7 @@ public class ClientDataSynchronizer {
         leaderDataObject.setFileSizeCheckSum(size);
         switch (type) {
             case STRING_MSG:
+//                leaderDataObject.setDownloadProgress(100);
                 break;
             case OTHER:
             case PDF:
@@ -91,7 +92,18 @@ public class ClientDataSynchronizer {
                         +File.separator + "temp."+extension);*/
                 try (FileOutputStream out = new FileOutputStream(directoryForData)) {
                     
-                    IOUtils.copy(inputStream,out);
+                    //IOUtils.copy(inputStream,out);
+                    byte[] buf = new byte[8192];
+                    int len = 0;
+                    int total=0;
+                    while ((len = inputStream.read(buf)) != -1) {
+                        total+=len;
+                        out.write(buf, 0, len);
+                       // LogUtil.logInfoToConsole("Download pecentage: " + (int)(((double)total/(int)size) *100));
+                        leaderDataObject.setDownloadProgress((int)(((double)total/(int)size) *100));
+                        leaderDataObject.getDownloadProgressAtomic().set((int)(((double)total/(int)size) *100));
+                    }
+//                    leaderDataObject.setDownloadProgress(100);
                     inputStream.close();
                     serverSocket.close();
                     serverSocket=null;

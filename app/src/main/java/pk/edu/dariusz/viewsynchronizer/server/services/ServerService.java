@@ -30,8 +30,8 @@ public class ServerService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case SEND_NEW_DATA_TO_LISTENERS:
-                    DataObjectToSend message = (DataObjectToSend) msg.obj;
-                    viewSynchronizerServer.updateMessageForListeners(message);
+                    DataObjectToSend dataObjectToSend = (DataObjectToSend) msg.obj;
+                    viewSynchronizerServer.updateMessageForListeners(dataObjectToSend,msg);
                     break;
              default:
                     super.handleMessage(msg);

@@ -25,13 +25,13 @@ public class ClientViewSynchronizerService extends Service {
     // Binder given to clients
     private LeaderDataObject data = new LeaderDataObject("Waiting...");
     private File tempDirectoryForData;
-    int areNewData = 0;
+    int downloadProgress;
     private final IBinder mBinder = new LocalBinder();
     private String address;
     private int port;
     private ClientDataSynchronizer clientDataSynchronizer;
 
-
+    private LeaderDataObject nextLeaderDataObject = new LeaderDataObject();
 
     public class LocalBinder extends Binder {
         public ClientViewSynchronizerService getService() {
@@ -84,17 +84,44 @@ public class ClientViewSynchronizerService extends Service {
         super.onDestroy();
     }
 
-    public LeaderDataObject checkForNewData() throws ServerDisconnected {
-        if(areNewData==0)
+    public int checkForNewData(){
+//        return nextLeaderDataObject.getDownloadProgress();
+        return nextLeaderDataObject.getDownloadProgressAtomic().get();
+    }
+
+    public LeaderDataObject getNewData() throws ServerDisconnected {
+        nextLeaderDataObject.setDownloadProgress(0);
+        nextLeaderDataObject.getDownloadProgressAtomic().set(0);
+        return data;
+
+/*        if(nextleaderDataObject.getDownloadProgress()==100) {
+            nextleaderDataObject.setDownloadProgress(0);
+            return data;
+        }else if(nextleaderDataObject.getDownloadProgress() == -1){
+            throw new ServerDisconnected("Leader has  switched off the server");
+        }else
+            return null;*/
+/*
+      if(downloadProgress==100) {
+            downloadProgress = 0;
+            return data;
+        }else if(downloadProgress == -1){
+            throw new ServerDisconnected("Leader has  switched off the server");
+        }else
+            return null;
+*/
+
+
+        /*       if(areNewData==0)
             return null;
         else if(areNewData==1) {
             areNewData=0;
+            downloadProgress=0;
             return data;
         }else {
             areNewData=0;//TODO ?
             throw new ServerDisconnected("Leader has  switched off the server");
-        }
-
+        }*/
     }
     public LeaderDataObject getCurrentData(){
         return  data;
@@ -115,15 +142,20 @@ public class ClientViewSynchronizerService extends Service {
                 REQUEST_TYPE type = REQUEST_TYPE.FIRST;
                 while(true) {
                    // clientDataSynchronizer.connect();
-                    data = clientDataSynchronizer.fetchDataFromServer(type);
-                    areNewData = 1;
-                    LogUtil.logInfoToConsole("Are new data :)");
-                    type = data.isDataFileCorrect() ? REQUEST_TYPE.GET_NEXT:REQUEST_TYPE.REFRESH;
+                    if(nextLeaderDataObject.getDownloadProgressAtomic().get()!=100) {
+                        nextLeaderDataObject = new LeaderDataObject();
+                        downloadProgress = 1;
+                        data = clientDataSynchronizer.fetchDataFromServer(type, nextLeaderDataObject);
+                        nextLeaderDataObject.setDownloadProgress(100);
+                        nextLeaderDataObject.getDownloadProgressAtomic().set(100);
+                        LogUtil.logInfoToConsole("Are new data :)");
+                        type = data.isDataFileCorrect() ? REQUEST_TYPE.GET_NEXT : REQUEST_TYPE.REFRESH;
 //                    type=REQUEST_TYPE.GET_NEXT;
-                    LogUtil.logInfoToConsole("Checksum: " + data.isDataFileCorrect());
+                        LogUtil.logInfoToConsole("Checksum: " + data.isDataFileCorrect());
+                    }
                 }
             } catch (IOException e) {
-                areNewData=3;
+                downloadProgress=-1;
                 LogUtil.logErrorToConsole("Synchronizer loop",e);
                 e.printStackTrace();
             }
