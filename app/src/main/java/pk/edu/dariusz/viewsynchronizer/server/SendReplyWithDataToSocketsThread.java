@@ -1,7 +1,5 @@
 package pk.edu.dariusz.viewsynchronizer.server;
 
-import android.os.Message;
-
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedOutputStream;

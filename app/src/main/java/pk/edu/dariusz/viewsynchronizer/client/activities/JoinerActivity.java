@@ -36,7 +36,7 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 import pk.edu.dariusz.viewsynchronizer.utils.ViewSynchronizerConstants;
 
 public class JoinerActivity extends AppCompatActivity {
-    private final int REQUEST_DIRECTORY = 112;
+
     private ClientViewSynchronizerService mService;
     private boolean mBound = false;
     private  Intent checkerServiceIntent;
@@ -207,20 +207,6 @@ public class JoinerActivity extends AppCompatActivity {
     };
 
     public void saveFileOnClick(View view) {
-        /*
-        -----------------------FOR path choser------------------
-        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
-
-        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-                .newDirectoryName("DirChooserSample")
-                .allowReadOnlyDirectory(true)
-                .allowNewDirectoryNameModification(true)
-                .build();
-
-        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
-        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
-        */
-
         File externalStorageDirectory = Environment.getExternalStorageDirectory();
         File applicationDownloadDirectory= new File(externalStorageDirectory+ File.separator+ViewSynchronizerConstants.APPLICATION_DOWNLOAD_DIRECTORY_NAME);
         boolean mkdir=true;

@@ -17,9 +17,7 @@ android {
         }
     }
 }
-/*repositories {
-    maven { url 'http://guardian.github.com/maven/repo-releases' }
-}*/
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -28,5 +26,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
-//    compile 'net.rdrei.android.dirchooser:library:3.2'
+
 }
