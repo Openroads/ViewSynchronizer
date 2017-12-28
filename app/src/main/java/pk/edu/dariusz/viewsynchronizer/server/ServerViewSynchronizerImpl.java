@@ -30,8 +30,7 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
     private DataObjectToSend dataToSend = new DataObjectToSend("Default data from leader :)");
     private int serverPort;
     private List<Socket> listenersSocket;
-    //identifier set to recognise first connecting hosts
-    private Set<String> knownListeners=new HashSet<>();
+
 
 
     public ServerViewSynchronizerImpl(int serverPort) {
@@ -81,34 +80,25 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
                 serverSocketListener = new ServerSocket(serverPort);
                 listenersSocket = new LinkedList<>();
                 while (true) {
-                    // block until new connection is created
-                    LogUtil.logDebugToConsole("ServerIsListening now on");
+                    LogUtil.logInfoToConsole("Server is listening now");
                     Socket socket = serverSocketListener.accept();
-                    String clientAddress =Arrays.toString(socket.getInetAddress().getAddress());
-                    LogUtil.logInfoToConsole("Server has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
+                    LogUtil.logDebugToConsole("Server has just connected  with " + Arrays.toString(socket.getInetAddress().getAddress()));
 
                     REQUEST_TYPE operation = null;
                     try{
                         DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                         operation = REQUEST_TYPE.valueOf(dataInputStream.readUTF());
-                        LogUtil.logInfoToConsole("Request type: " +operation);
                         switch (operation){
                             case FIRST:
                                 sendResponseToSocket(socket);
-                                //knownListeners.add(clientAddress);
                                 break;
                             case GET_NEXT:
-                  /*              if(!knownListeners.contains(clientAddress) ) {
-                                    sendResponseToSocket(socket);
-                                    knownListeners.add(clientAddress);
-                                }*/
                                 listenersSocket.add(socket);
                                 break;
                             case REFRESH:
                                 sendResponseToSocket(socket);
                                 break;
                             case FINISH:
-                                //knownListeners.remove(clientAddress);
                                 break;
                         }
 

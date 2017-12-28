@@ -40,23 +40,16 @@ public class SendReplyWithDataToSocketsThread extends Thread {
 
     @Override
     public void run() {
-        List<Socket> disconnectedClients =null;
         LogUtil.logDebugToConsole("Response is to : " + hostSockets.size() + " listeners");
         for (Socket socket : hostSockets) {
             try {
                 sendMessageToSocket(socket, data);
                 socket.close();
-               /* if (!Utils.checkIfClientIsConnected(socket)) {
-                    if(disconnectedClients == null) disconnectedClients = new ArrayList<>(1);
-                    socket.close();
-                    disconnectedClients.add(socket);
-                }*/
             } catch (Exception e) {
                 LogUtil.logErrorToConsole("Exception during sending  message to all connected hosts.", e);
             }
         }
         hostSockets.clear();
-  //     if(disconnectedClients != null) hostSockets.removeAll(disconnectedClients);
     }
 
     private void sendMessageToSocket(Socket socket, DataObjectToSend data) throws IOException {
@@ -86,7 +79,5 @@ public class SendReplyWithDataToSocketsThread extends Thread {
                 LogUtil.logInfoToConsole("Flushed binary data");
                 break;
         }
-
-
     }
 }
