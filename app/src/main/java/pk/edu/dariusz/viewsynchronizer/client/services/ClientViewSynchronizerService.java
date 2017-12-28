@@ -47,8 +47,7 @@ public class ClientViewSynchronizerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Toast.makeText(getApplicationContext(), "binding with clientsynchro", Toast.LENGTH_SHORT).show();
-
+        LogUtil.logDebugToConsole("binding with clientsynchronizer service");
         return mBinder;
     }
 
@@ -59,6 +58,7 @@ public class ClientViewSynchronizerService extends Service {
         address = intent.getStringExtra("serverAddress");
         port = intent.getIntExtra("serverPort",6000);
         */
+        LogUtil.logDebugToConsole("On start service cliensynchronizer");
         address="192.168.43.1";
         port=6000;
         tempDirectoryForData = new File(getFilesDir(),"file_from_leader");
@@ -72,6 +72,7 @@ public class ClientViewSynchronizerService extends Service {
         try {
             if(clientDataSynchronizer!=null)
                 clientDataSynchronizer.closeSynchronizer();
+                clientDataSynchronizer=null;
         } catch (IOException e) {
             e.printStackTrace();
         }finally {

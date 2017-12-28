@@ -92,10 +92,10 @@ public class JoinerActivity extends AppCompatActivity {
             ClientViewSynchronizerService.LocalBinder binder = (ClientViewSynchronizerService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
-            textView.setText(mService.getCurrentData().getMessage());
             new Thread() {
                 public void run() {
                     try {
+                        boolean justConnected = true;
                         while (true) {
 
                             final int newDataProgressPercent = mService.checkForNewData();
@@ -110,7 +110,7 @@ public class JoinerActivity extends AppCompatActivity {
                                }
                                downloadProgressBar.setProgress(newDataProgressPercent);
 
-                            }else if(newDataProgressPercent ==100) {
+                            }else if(newDataProgressPercent ==100 || justConnected) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -118,8 +118,13 @@ public class JoinerActivity extends AppCompatActivity {
                                     }
                                 });
 
-                                LeaderDataObject newData = mService.getNewData();
-
+                                LeaderDataObject newData;
+                                if(justConnected){
+                                    newData = mService.getCurrentData();
+                                    justConnected=false;
+                                }
+                                else
+                                    newData = mService.getNewData();
                                 if (newData != null) {
                                     leaderDataObject = newData;
                                     switch (leaderDataObject.getType()) {
