@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
@@ -63,25 +64,18 @@ public class Utils {
     }
     public static String checkHostsInLANForServerIp() throws SocketException {
 
-        //getting subnet address
-         /*InetAddress address = getMyInetAddress(true);
-        NetworkInterface byInetAddress = NetworkInterface.getByInetAddress(address);
-        for(InterfaceAddress interfaceAddress : byInetAddress.getInterfaceAddresses()){
-            interfaceAddress.getNetworkPrefixLength();
-        }*/
         String[] split = getMyIPAddress(true).split("\\.");
-        StringBuilder subnet;
-        int timeout=100;
-        for(int j=1;j<255;j++) {
-            subnet= new StringBuilder(split[0]+"."+split[1]);
-            subnet.append(".").append(j);
-            for (int i = 1; i < 255; i++) {
-                String host = subnet.toString()+"."+i;
-                    if(isListeningOnPort(host,ViewSynchronizerConstants.APPLICATION_PORT))
-                        return host;
-                }
+        //przyjmujac ze maska podsieci bedzie 24bitowa sprawdzamy ostatni okret adresów
+        String subnet = split[0]+"."+split[1]+"."+split[2];
+        String serverAddress="";
+        for (int i = 1; i < 255; i++) {
+            String checkHost = subnet+"."+i;
+            if(isListeningOnPort(checkHost,ViewSynchronizerConstants.APPLICATION_PORT)) {
+                serverAddress =  checkHost;
+                break;
             }
-            return "";
+        }
+        return serverAddress;
         }
     public static boolean isListeningOnPort(String host, int port)
     {
@@ -89,7 +83,7 @@ public class Utils {
         try
         {
             s = new Socket();
-            s.connect(new InetSocketAddress(host, port),180);
+            s.connect(new InetSocketAddress(host, port),200);
             return true;
         }
         catch (Exception e)

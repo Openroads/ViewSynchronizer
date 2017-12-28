@@ -53,11 +53,6 @@ public class ClientViewSynchronizerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //to enable for user choose address of server and port to connection(connection additional settings)
-        /*
-        address = intent.getStringExtra("serverAddress");
-        port = intent.getIntExtra("serverPort",6000);
-        */
         LogUtil.logDebugToConsole("On start service cliensynchronizer");
         address="192.168.43.1";
         port=6000;
@@ -102,9 +97,9 @@ public class ClientViewSynchronizerService extends Service {
         @Override
         public void run() {
             try {
-                /*String findAddress = Utils.checkHostsInLANForServerIp();
+                String findAddress = Utils.checkHostsInLANForServerIp();
                 if(!findAddress.equals(""))
-                    address= findAddress;*/
+                    address= findAddress;
 
                 clientDataSynchronizer = new ClientDataSynchronizer(address,port,tempDirectoryForData);
 
@@ -120,6 +115,7 @@ public class ClientViewSynchronizerService extends Service {
                 }
             } catch (IOException e) {
                 LogUtil.logErrorToConsole("Exception in synchronizer loop ",e);
+                e.printStackTrace();
             }
         }
     }
