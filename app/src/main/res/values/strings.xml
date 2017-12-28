@@ -11,5 +11,5 @@
     <string name="succesfully_saved_toast_message">Successfully saved in directory</string>
     <string name="downloading_textview_text">Pobieranie</string>
     <string name="open_button_label">Otwórz</string>
-    <string name="unsubscribe_button_text">Unsubscribe</string>
+    <string name="unsubscribe_button_text">Zakończ</string>
 </resources>

@@ -53,11 +53,6 @@
             android:text="@string/shared_now"
             android:textColor="#000" />
 
-        <ProgressBar
-            android:id="@+id/sendingProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
         <EditText
             android:id="@+id/sharedFileName"

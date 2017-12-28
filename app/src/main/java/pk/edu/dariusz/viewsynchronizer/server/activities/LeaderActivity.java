@@ -50,7 +50,6 @@ public class LeaderActivity extends AppCompatActivity {
 
     private EditText editTextShareMessage;
     private Switch downloadAllowedSwitch;
-    private ProgressBar sendingProgressBar;
     private EditText labelFileName;
     private ImageView imageView;
     private Uri uri;
@@ -70,7 +69,6 @@ public class LeaderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_leader);
         editTextShareMessage = (EditText) findViewById(R.id.editTextToSend);
         downloadAllowedSwitch =(Switch) findViewById(R.id.downloadSwitcher);
-        sendingProgressBar =(ProgressBar) findViewById(R.id.sendingProgressBar);
         imageView = (ImageView) findViewById(R.id.imageToSend);
         labelFileName = (EditText) findViewById(R.id.sharedFileName);
         serviceIntent = new Intent(this, ServerService.class);
@@ -94,6 +92,13 @@ public class LeaderActivity extends AppCompatActivity {
         DataObjectToSend dataObjectToSend = new DataObjectToSend(editTextShareMessage.getText().toString());
         new SendDataThread(dataObjectToSend).start();
 
+    }
+    public void switchOffOnClick(View view) {
+        if(mBounded) {
+            unbindService(mConnection);
+            stopService(serviceIntent);
+            mBounded=false;
+        }
     }
     private class SendDataThread extends Thread{
         DataObjectToSend dataObjectToSend;

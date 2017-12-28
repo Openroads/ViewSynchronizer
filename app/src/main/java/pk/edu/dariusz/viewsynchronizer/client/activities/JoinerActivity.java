@@ -236,12 +236,10 @@ public class JoinerActivity extends AppCompatActivity {
     public void openFileFromServerOnClick(View view) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(FilenameUtils.getExtension(leaderDataObject.getOriginalFileName()));
-//        Uri data = Uri.fromFile(leaderDataObject.getFile());
         Uri data = Uri.parse("content://"+ ViewSynchronizerConstants.APP_PACKAGE_NAME+"/"+leaderDataObject.getFile().getName());
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(data, mime);
         startActivity(intent);
     }
-
 
 }

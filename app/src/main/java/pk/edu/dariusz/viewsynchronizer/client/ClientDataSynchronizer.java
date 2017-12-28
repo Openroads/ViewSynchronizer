@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,7 +30,6 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 public class ClientDataSynchronizer {
     private Socket serverSocket;
     private SocketAddress socketAddress;
-    private BufferedReader in;
     private File directoryForData;
 
     public ClientDataSynchronizer(String address, int port,File directoryForData) throws IOException {
@@ -44,21 +44,17 @@ public class ClientDataSynchronizer {
 
 
     public LeaderDataObject fetchDataFromServer(REQUEST_TYPE request_type,LeaderDataObject leaderDataObject) throws IOException {
-
         //making reconnection to server
         reconnect();
 
         InputStream inputStream = serverSocket.getInputStream();
-        //PrintWriter writer = new PrintWriter(serverSocket.getOutputStream());
-        //InputStreamReader reader = new InputStreamReader(inputStream);
         DataOutputStream dataOutputStream = new DataOutputStream(serverSocket.getOutputStream());
         dataOutputStream.writeUTF(request_type.name());
         dataOutputStream.flush();
 
         DataInputStream dataInputStream = new DataInputStream(inputStream);
 
-
-        String dataType = dataInputStream.readUTF();//.split(";");
+        String dataType = dataInputStream.readUTF();
         long size = dataInputStream.readLong();
         String message = dataInputStream.readUTF();
         DATA_TYPE type = DATA_TYPE.valueOf(dataType);
@@ -72,17 +68,13 @@ public class ClientDataSynchronizer {
             case PDF:
             case IMG:
                 String fileName = dataInputStream.readUTF();
-                LogUtil.logDebugToConsole("FILE NAME: " +fileName);
+                LogUtil.logDebugToConsole("DOWNLOADING FILE NAME: " +fileName);
                 leaderDataObject.setOriginalFileName(fileName);
                 boolean allowedToDownload = dataInputStream.readBoolean();
-                LogUtil.logDebugToConsole("DOWNLOADING: " +allowedToDownload);
                 leaderDataObject.setAllowedToDownload(allowedToDownload);
 
-                // WRITING TO EXTERNAL STORAGE
-                /*String extension = FilenameUtils.getExtension(fileName);
-                File outFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath()
-                        +File.separator + "temp."+extension);*/
-                try (FileOutputStream out = new FileOutputStream(directoryForData)) {
+                try (FileOutputStream fous = new FileOutputStream(directoryForData);
+                     BufferedOutputStream out = new BufferedOutputStream(fous)) {
                     byte[] buf = new byte[8192];
                     int len = 0;
                     int total=0;
@@ -100,7 +92,10 @@ public class ClientDataSynchronizer {
             }
         return leaderDataObject;
     }
-
+    private void reconnect() throws IOException {
+        this.serverSocket = new Socket();
+        this.serverSocket.connect(socketAddress);
+    }
 
     public File fetchFileFromServer() throws IOException {
         InputStream in = serverSocket.getInputStream();
@@ -114,7 +109,7 @@ public class ClientDataSynchronizer {
         out.close();
         return outFile;
     }
-    public boolean isExternalStorageWritable() {
+    private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             return true;
@@ -122,8 +117,4 @@ public class ClientDataSynchronizer {
         return false;
     }
 
-    private void reconnect() throws IOException {
-        this.serverSocket = new Socket();
-        this.serverSocket.connect(socketAddress);
-    }
 }
