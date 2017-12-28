@@ -112,7 +112,6 @@ public class LeaderActivity extends AppCompatActivity {
             }
             Message msg = Message.obtain(null, SEND_NEW_DATA_TO_LISTENERS, 0, 0);
             msg.obj=dataObjectToSend;
-            msg.replyTo=responseMessengerReplyTo;
             try {
                 mServiceMessenger.send(msg);
             } catch (RemoteException e) {
@@ -148,30 +147,6 @@ public class LeaderActivity extends AppCompatActivity {
             mBounded = false;
         }
     };
-
-
-
-    private class ResponseFromServiceHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case ServerViewSynchronizerImpl.PROGRESS_STATE_MESSAGE_TYPE:
-                    LogUtil.logInfoToConsole("SENDING FINISHED "+msg.arg1);
-
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    }
-    private final Messenger responseMessengerReplyTo = new Messenger(new ResponseFromServiceHandler());
-    public void switchOffOnClick(View view) {
-        if(mBounded) {
-            unbindService(mConnection);
-            stopService(serviceIntent);
-            mBounded=false;
-        }
-    }
 
     public void chooseFileOnClick(View view) {
 

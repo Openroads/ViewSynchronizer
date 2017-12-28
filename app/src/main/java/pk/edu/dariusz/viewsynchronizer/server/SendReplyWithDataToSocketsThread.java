@@ -25,12 +25,12 @@ public class SendReplyWithDataToSocketsThread extends Thread {
 
     private List<Socket> hostSockets;
     private DataObjectToSend data;
-    private Message messageToRespond;
 
-    public SendReplyWithDataToSocketsThread(List<Socket> sockets, DataObjectToSend m, Message msgToRespondProgress) {
+
+    public SendReplyWithDataToSocketsThread(List<Socket> sockets, DataObjectToSend m) {
         this.hostSockets = sockets;
         this.data = m;
-        this.messageToRespond =msgToRespondProgress;
+
     }
 
 
@@ -53,11 +53,6 @@ public class SendReplyWithDataToSocketsThread extends Thread {
                     socket.close();
                     disconnectedClients.add(socket);
                 }*/
-               if(messageToRespond !=null) {
-                   Message response = Message.obtain(null, ServerViewSynchronizerImpl.PROGRESS_STATE_MESSAGE_TYPE);
-                   response.arg1 = 211212;
-                  // messageToRespond.replyTo.send(response); ?????????
-               }
             } catch (Exception e) {
                 LogUtil.logErrorToConsole("Exception during sending  message to all connected hosts.", e);
             }

@@ -51,11 +51,11 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
         return serverSocketListener;
     }
 
-    public void updateMessageForListeners(DataObjectToSend message, Message msgToRespondProgress) {
+    public void updateMessageForListeners(DataObjectToSend message) {
         LogUtil.logInfoToConsole("Updating message from: "+this.dataToSend.getMessage()+" to: " +message.getMessage());
         this.dataToSend = message;
         if(listenersSocket != null && listenersSocket.size() > 0) {
-            new SendReplyWithDataToSocketsThread(listenersSocket,message,msgToRespondProgress).start();
+            new SendReplyWithDataToSocketsThread(listenersSocket,message).start();
         }else{
             LogUtil.logInfoToConsole("No listeners connected to server.");
         }

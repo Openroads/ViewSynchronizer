@@ -18,6 +18,6 @@ public interface ServerViewSynchronizer {
     String getIpAddress();
 
 
-    void updateMessageForListeners(DataObjectToSend message, Message msg);
+    void updateMessageForListeners(DataObjectToSend message);
 
 }

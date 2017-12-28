@@ -31,7 +31,7 @@ public class ServerService extends Service {
             switch (msg.what) {
                 case SEND_NEW_DATA_TO_LISTENERS:
                     DataObjectToSend dataObjectToSend = (DataObjectToSend) msg.obj;
-                    viewSynchronizerServer.updateMessageForListeners(dataObjectToSend,msg);
+                    viewSynchronizerServer.updateMessageForListeners(dataObjectToSend);
                     break;
              default:
                     super.handleMessage(msg);
