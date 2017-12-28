@@ -26,7 +26,6 @@ import pk.edu.dariusz.viewsynchronizer.utils.LogUtil;
  */
 
 public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
-    public static final int PROGRESS_STATE_MESSAGE_TYPE = 22;
     private ServerSocket serverSocketListener;
     private DataObjectToSend dataToSend = new DataObjectToSend("Default data from leader :)");
     private int serverPort;
@@ -90,14 +89,13 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
 
                     REQUEST_TYPE operation = null;
                     try{
-                       // BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                         operation = REQUEST_TYPE.valueOf(dataInputStream.readUTF());
                         LogUtil.logInfoToConsole("Request type: " +operation);
                         switch (operation){
                             case FIRST:
                                 sendResponseToSocket(socket);
-                                knownListeners.add(clientAddress);
+                                //knownListeners.add(clientAddress);
                                 break;
                             case GET_NEXT:
                   /*              if(!knownListeners.contains(clientAddress) ) {
@@ -110,7 +108,7 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
                                 sendResponseToSocket(socket);
                                 break;
                             case FINISH:
-                                knownListeners.remove(clientAddress);
+                                //knownListeners.remove(clientAddress);
                                 break;
                         }
 
@@ -127,34 +125,6 @@ public class ServerViewSynchronizerImpl implements ServerViewSynchronizer {
     }
     private void sendResponseToSocket(Socket socket){
         new SendReplyWithDataToSocketsThread(socket,dataToSend).start();
-//        listenersSocket.remove(socket);
-    }
-    public String getIpAddress() {
-        String ip = "";
-        try {
-            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
-                    .getNetworkInterfaces();
-            while (enumNetworkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = enumNetworkInterfaces
-                        .nextElement();
-                Enumeration<InetAddress> enumInetAddress = networkInterface
-                        .getInetAddresses();
-                while (enumInetAddress.hasMoreElements()) {
-                    InetAddress inetAddress = enumInetAddress
-                            .nextElement();
-
-                    if (inetAddress.isSiteLocalAddress()) {
-                        ip += inetAddress.getHostAddress();
-                    }
-                }
-            }
-
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            ip += "Something Wrong! " + e.toString() + "\n";
-        }
-        return ip;
     }
 }
 

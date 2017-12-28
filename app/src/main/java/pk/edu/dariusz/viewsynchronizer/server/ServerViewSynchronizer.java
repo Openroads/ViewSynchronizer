@@ -15,8 +15,6 @@ public interface ServerViewSynchronizer {
     ServerSocket runServer();
     void closeServer();
     int getPort();
-    String getIpAddress();
-
 
     void updateMessageForListeners(DataObjectToSend message);
 

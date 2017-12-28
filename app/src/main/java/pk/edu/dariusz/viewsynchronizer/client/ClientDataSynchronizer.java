@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -35,8 +36,6 @@ public class ClientDataSynchronizer {
     public ClientDataSynchronizer(String address, int port,File directoryForData) throws IOException {
         socketAddress = new InetSocketAddress(address,port);
         this.directoryForData=directoryForData;
-/*        in = new BufferedReader(new InputStreamReader(
-                serverSocket.getInputStream()));*/
     }
     public void closeSynchronizer() throws IOException {
         if (serverSocket != null) serverSocket.close();
@@ -74,11 +73,12 @@ public class ClientDataSynchronizer {
                 leaderDataObject.setAllowedToDownload(allowedToDownload);
 
                 try (FileOutputStream fous = new FileOutputStream(directoryForData);
-                     BufferedOutputStream out = new BufferedOutputStream(fous)) {
+                     BufferedOutputStream out = new BufferedOutputStream(fous);
+                     BufferedInputStream bis = new BufferedInputStream(inputStream)) {
                     byte[] buf = new byte[8192];
                     int len = 0;
                     int total=0;
-                    while ((len = inputStream.read(buf)) != -1) {
+                    while ((len = bis.read(buf)) != -1) {
                         total+=len;
                         out.write(buf, 0, len);
                         leaderDataObject.getDownloadProgressAtomic().set((int)(((double)total/(int)size) *100));

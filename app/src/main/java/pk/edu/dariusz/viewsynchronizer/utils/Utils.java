@@ -54,7 +54,7 @@ public class Utils {
             if (useIPv4) {
                 return stringAddress;
             } else {
-                int delim = stringAddress.indexOf('%'); // drop ip6 zone suffix
+                int delim = stringAddress.indexOf('%');
                 return delim < 0 ? stringAddress.toUpperCase() : stringAddress.substring(0, delim).toUpperCase();
 
             }
@@ -102,18 +102,6 @@ public class Utils {
                 try {s.close();}
                 catch(Exception e){}
         }
-    }
-
-    public static boolean checkIfClientIsConnected(Socket socket) {
-        try {
-            socket.getOutputStream().write(0);
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-        /* if(!socket.getInetAddress().isReachable(200)) {
-                return false;
-            }*/
     }
 
     public static void copyBetweenStreams(InputStream in, OutputStream out) throws IOException {
