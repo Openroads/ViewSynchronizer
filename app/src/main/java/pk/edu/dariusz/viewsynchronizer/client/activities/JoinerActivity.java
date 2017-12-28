@@ -142,9 +142,14 @@ public class JoinerActivity extends AppCompatActivity {
                                                 @Override
                                                 public void run() {
                                                     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                                    bmOptions.inJustDecodeBounds = false;
+                                                    bmOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+                                                    bmOptions.inDither = true;
                                                     Bitmap bitmap = BitmapFactory.decodeFile(leaderDataObject.getFile().getAbsolutePath(), bmOptions);
                                                     //bitmap = Bitmap.createScaledBitmap(bitmap,parent.getWidth(),parent.getHeight(),true);
-                                                    imageView.setImageBitmap(bitmap);
+                                                    int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+                                                    Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+                                                    imageView.setImageBitmap(scaled);
 
                                                     if (leaderDataObject.getMessage() != null)
                                                         textView.setText(leaderDataObject.getMessage());

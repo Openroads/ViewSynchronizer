@@ -10,6 +10,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 
+import pk.edu.dariusz.viewsynchronizer.R;
 import pk.edu.dariusz.viewsynchronizer.client.ClientDataSynchronizer;
 import pk.edu.dariusz.viewsynchronizer.client.model.LeaderDataObject;
 import pk.edu.dariusz.viewsynchronizer.commons.REQUEST_TYPE;
@@ -23,7 +24,7 @@ import pk.edu.dariusz.viewsynchronizer.utils.Utils;
 
 public class ClientViewSynchronizerService extends Service {
     // Binder given to clients
-    private LeaderDataObject data = new LeaderDataObject("Waiting...");
+    private LeaderDataObject data;
     private File tempDirectoryForData;
     private final IBinder mBinder = new LocalBinder();
     private String address;
@@ -42,6 +43,7 @@ public class ClientViewSynchronizerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        data = new LeaderDataObject(getString(R.string.default_waiting_message));
     }
 
     @Nullable

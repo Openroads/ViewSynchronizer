@@ -12,4 +12,5 @@
     <string name="downloading_textview_text">Pobieranie</string>
     <string name="open_button_label">Otwórz</string>
     <string name="unsubscribe_button_text">Zakończ</string>
+    <string name="default_waiting_message">Wyszukiwanie urządzenia prowadzącego..</string>
 </resources>

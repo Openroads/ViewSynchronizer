@@ -190,17 +190,17 @@ public class LeaderActivity extends AppCompatActivity {
 
                 if(Utils.getDataType(uriInfo.getFullFileName()) == DATA_TYPE.IMG ) {
                     labelFileName.setVisibility(View.INVISIBLE);
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+  //                  try {
+  //                      Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
 
                         imageView.setImageURI(uri);
                         imageView.setMaxHeight(512);
                         imageView.setMaxWidth(512);
 //                        imageView.setImageBitmap(getCorrectlyOrientedImage(getApplicationContext(),uri));
                         imageView.setVisibility(View.VISIBLE);
-                    } catch (IOException e) {
+     /*               } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
                 }
                 else {
